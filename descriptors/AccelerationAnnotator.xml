@@ -2,7 +2,7 @@
 <!--
   descriptors/AccelerationAnnotator.xml
 -->
-<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
   <primitive>true</primitive>
   <annotatorImplementationName>AccelerationAnnotator</annotatorImplementationName>
@@ -12,11 +12,12 @@
     <description>Annotates acceleration data.</description>
     <version>1.0</version>
     <vendor>ahoereth</vendor>
-    
-    <operationalProperties>
-      <modifiesCas>true</modifiesCas>
-      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
-      <outputsNewCASes>true</outputsNewCASes>
-    </operationalProperties>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="TypeSystem.xml"/>
+      </imports>
+    </typeSystemDescription>
   </analysisEngineMetaData>
-</taeDescription>
+</analysisEngineDescription>

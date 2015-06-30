@@ -4,25 +4,75 @@
 
 #include <string>
 #include "uima/api.hpp"
-#include "utils.hpp"
-
-using namespace std;
-using namespace uima;
 
 
+/**
+ * Helper routine to check and report errors. Exits the program on error.
+ *
+ * @param {TyErrorId}      utErrorId
+ * @param {AnalysisEngine} crEngine
+ */
+void checkError(
+  uima::TyErrorId utErrorId,
+  const uima::AnalysisEngine& crEngine
+) {
+  if (utErrorId != UIMA_ERR_NONE) {
+    std::cerr << std::endl
+      << "   *** Error info:" << std::endl
+      << "Error number        : " << utErrorId << std::endl
+      << "Error string        : "
+      << uima::AnalysisEngine::getErrorIdAsCString(utErrorId) << std::endl;
+
+    const TCHAR* errStr =
+      crEngine.getAnnotatorContext().getLogger().getLastErrorAsCStr();
+    if (errStr != NULL) {
+      std::cerr << "  Last logged message : "  << errStr << std::endl;
+    }
+
+    exit(static_cast<int>(utErrorId));
+  }
+}
+
+
+/**
+ * Helper routine to check and report errors. Exits the program on error.
+ *
+ * @param {ErrorInfo}      errInfo
+ */
+void checkError(const uima::ErrorInfo& errInfo) {
+  if (errInfo.getErrorId() != UIMA_ERR_NONE) {
+    std::cerr << std::endl
+      << "   *** Error info:" << std::endl
+      << "Error string  : "
+      << uima::AnalysisEngine::getErrorIdAsCString(errInfo.getErrorId())
+      << errInfo << std::endl;
+
+    exit(static_cast<int>(errInfo.getErrorId()));
+  }
+}
+
+
+/**
+ * Main application for initializing the UIMA aggregation flow and
+ * visualizing results.
+ *
+ * @param  {int}    argc
+ * @param  {char[]} argv
+ * @return {int}
+ */
 int main(int argc, char * argv[]) {
-  ErrorInfo errorInfo;
+  uima::ErrorInfo errorInfo;
 
   // Create a resource manager instance (singleton)
-  ResourceManager::createInstance("UIMACPP_EXAMPLE_APPLICATION");
+  uima::ResourceManager::createInstance("UIMACPP_EXAMPLE_APPLICATION");
 
   // Initialize Analysis Engine.
-  AnalysisEngine *pEngine =
-    Framework::createAnalysisEngine("descriptors/Pipeline.xml", errorInfo);
-  utils::checkError(errorInfo);
+  uima::AnalysisEngine *pEngine = uima::Framework::createAnalysisEngine(
+    "descriptors/Pipeline.xml", errorInfo);
+  checkError(errorInfo);
 
   // Get a new CAS.
-  CAS *tcas = pEngine->newCAS();
+  uima::CAS *tcas = pEngine->newCAS();
 
   // We do not use a sofa document or datastream. Instead the first Annotator
   // in the aggregate flow is a Populator and fills the CAS with data which
@@ -32,18 +82,18 @@ int main(int argc, char * argv[]) {
   tcas->setDocumentText(us);
 
   // Process the CAS.
-  TyErrorId utErrorId = pEngine->process(*tcas);
-  utils::checkError(utErrorId, *pEngine);
+  uima::TyErrorId utErrorId = pEngine->process(*tcas);
+  checkError(utErrorId, *pEngine);
 
   // Call collectionProcessComplete.
   utErrorId = pEngine->collectionProcessComplete();
 
   // Free ressorces.
   utErrorId = pEngine->destroy();
-  utils::checkError(utErrorId, *pEngine);
+  checkError(utErrorId, *pEngine);
   delete tcas;
   delete pEngine;
 
-  cout << "App: processing finished sucessfully! " << endl;
+  std::cout << "App: processing finished sucessfully! " << std::endl;
   return(0);
 }

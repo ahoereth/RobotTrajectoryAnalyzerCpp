@@ -1,5 +1,5 @@
 /**
- * RobotTrajectoryAnalyzer/src/JointStatePopulator.cpp
+ * src/JointStatePopulator.cpp
  *
  * Copyright 2015 Alexander Hoereth
  */
@@ -8,7 +8,6 @@
 #include <vector>
 #include <cstdlib>
 #include <iostream>
-#include "utils.hpp"
 #include "uima/api.hpp"
 #include "mongo/client/dbclient.h"
 #include "unicode/stringpiece.h"
@@ -22,9 +21,64 @@ using std::endl;
 using uima::Annotator;  // required for MAKE_AE
 
 
+/**
+ * Convert a C++ standard string to a ICU Unicode String as required by many
+ * UIMA applications.
+ *
+ * @param  {std::string} str
+ * @return {icu::UnicodeString}
+ */
+icu::UnicodeString sToUs(const std::string& str) {
+  return icu::UnicodeString(str.data(), str.length(), US_INV);
+}
+
+
+/**
+ * Convert a mongo BSON element to a UIMA CAS String Array Feature Structure.
+ *
+ * @param  {mongo::BSONElement}  field
+ * @param  {uima::CAS}           cas
+ * @return {uima::StringArrayFS}
+ */
+uima::DoubleArrayFS fieldToDoubleArrayFS(
+  const mongo::BSONElement& field,
+  uima::CAS& cas
+) {
+  std::vector<mongo::BSONElement> vec = field.Array();
+  uima::DoubleArrayFS fs = cas.createDoubleArrayFS(vec.size());
+
+  for (std::size_t i = 0; i < vec.size(); ++i) {
+    fs.set(i, vec[i].Double());
+  }
+
+  return fs;
+}
+
+
+/**
+ * Convert a mongo BSON element to a UIMA CAS Double Array Feature Structure.
+ *
+ * @param  {mongo::BSONElement}  field
+ * @param  {uima::CAS}           cas
+ * @return {uima::StringDoubleFS}
+ */
+uima::StringArrayFS fieldToStringArrayFS(
+  const mongo::BSONElement& field,
+  uima::CAS& cas
+) {
+  std::vector<mongo::BSONElement> vec = field.Array();
+  uima::StringArrayFS fs = cas.createStringArrayFS(vec.size());
+
+  for (std::size_t i = 0; i < vec.size(); ++i) {
+    fs.set(i, sToUs(vec[i].String()));
+  }
+
+  return fs;
+}
+
+
 class JointStatePopulator : public Annotator {
  private:
-  uima::CAS *pCAS;
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
 
@@ -45,48 +99,30 @@ class JointStatePopulator : public Annotator {
     cout << "JointStatePopulator: Destructor" << endl;
   }
 
-
   /**
    * Annotator initialization.
    */
   uima::TyErrorId initialize(uima::AnnotatorContext &rclAnnotatorContext) {
     cout << "JointStatePopulator: initialize()" << endl;
 
-    // Check "Host" parameter.
-    if (
-      !rclAnnotatorContext.isParameterDefined("Host") || UIMA_ERR_NONE !=
-       rclAnnotatorContext.extractValue("Host", host)
-    ) {
-      rclAnnotatorContext.getLogger().logError("Required configuration "
-        "parameter 'Host' not found in component descriptor");
-      cout << "JointStatePopulator::initialize() - Error." << endl;
-      return UIMA_ERR_USER_ANNOTATOR_COULD_NOT_INIT;
+    host = "localhost";
+    if (rclAnnotatorContext.isParameterDefined("Host")) {
+      rclAnnotatorContext.extractValue("Host", host);
     }
 
-    // Check "Database" parameter.
-    if (
-      !rclAnnotatorContext.isParameterDefined("Database") || UIMA_ERR_NONE !=
-       rclAnnotatorContext.extractValue("Database", database)
-    ) {
-      rclAnnotatorContext.getLogger().logError("Required configuration "
-        "parameter 'Database' not found in component descriptor");
-      cout << "JointStatePopulator::initialize() - Error" << endl;
-      return UIMA_ERR_USER_ANNOTATOR_COULD_NOT_INIT;
+    database = "dummy1";
+    if (rclAnnotatorContext.isParameterDefined("Database")) {
+      rclAnnotatorContext.extractValue("Database", database);
     }
 
-    // Check "Collection" parameter.
-    if (
-      !rclAnnotatorContext.isParameterDefined("Collection") || UIMA_ERR_NONE !=
-       rclAnnotatorContext.extractValue("Collection", collection)
-    ) {
-      rclAnnotatorContext.getLogger().logError("Required configuration "
-        "parameter 'Collection' not found in component descriptor");
-      cout << "JointStatePopulator::initialize() - Error" << endl;
-      return UIMA_ERR_USER_ANNOTATOR_COULD_NOT_INIT;
+    collection = "joint_states";
+    if (rclAnnotatorContext.isParameterDefined("Collection")) {
+      rclAnnotatorContext.extractValue("Collection", collection);
     }
 
     // Log configuration info.
-    rclAnnotatorContext.getLogger().logMessage("Host = '" + host + "', "
+    rclAnnotatorContext.getLogger().logMessage(
+      "Host = '" + host + "', "
       "Database = '" + database + "', "
       "Collection = '" + collection + "'");
 
@@ -157,8 +193,6 @@ class JointStatePopulator : public Annotator {
   ) {
     cout << "JointStatePopulator::process() begins" << endl;
 
-    //  pCAS = &cas;
-
     std::auto_ptr<mongo::DBClientCursor> cursor =
       conn.query(database + "." + collection, mongo::BSONObj());
 
@@ -178,17 +212,17 @@ class JointStatePopulator : public Annotator {
       js.setIntValue(JointState.getFeatureByBaseName("time"),
         header.getField("stamp").Date().asInt64());
       js.setStringValue(JointState.getFeatureByBaseName("frameID"),
-        utils::sToUs(obj.getField("frame_id")));
+        sToUs(obj.getField("frame_id")));
       // TODO(ahoereth): Why not `names` like `positions` and `velocities`?
       js.setFSValue(JointState.getFeatureByBaseName("name"),
-        utils::fieldToStringArrayFS(obj.getField("name"), cas));
+        fieldToStringArrayFS(obj.getField("name"), cas));
       jtp.setFSValue(JointTrajectoryPoint.getFeatureByBaseName("positions"),
-        utils::fieldToDoubleArrayFS(obj.getField("position"), cas));
+        fieldToDoubleArrayFS(obj.getField("position"), cas));
       // TODO(ahoereth): Why not `efforts` like `positions` and `velocities`?
       jtp.setFSValue(JointTrajectoryPoint.getFeatureByBaseName("effort"),
-        utils::fieldToDoubleArrayFS(obj.getField("effort"), cas));
+        fieldToDoubleArrayFS(obj.getField("effort"), cas));
       jtp.setFSValue(JointTrajectoryPoint.getFeatureByBaseName("velocities"),
-        utils::fieldToDoubleArrayFS(obj.getField("velocity"), cas));
+        fieldToDoubleArrayFS(obj.getField("velocity"), cas));
 
       jointStates.addLast(js);
     }

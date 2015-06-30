@@ -64,5 +64,17 @@
         </featureDescription>
       </features>
     </typeDescription>
+    <typeDescription>
+      <name>Acceleration</name>
+      <description/>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>value</name>
+          <description/>
+          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
   </types>
 </typeSystemDescription>

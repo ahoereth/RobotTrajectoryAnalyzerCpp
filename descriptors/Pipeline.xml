@@ -10,6 +10,9 @@
     <delegateAnalysisEngine key="JointStatePopulator">
       <import location="JointStatePopulator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="AccelerationAnnotator">
+      <import location="AccelerationAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -23,6 +26,7 @@
     <flowConstraints>
       <fixedFlow>
         <node>JointStatePopulator</node>
+        <node>AccelerationAnnotator</node>
       </fixedFlow>
     </flowConstraints>
   </analysisEngineMetaData>
