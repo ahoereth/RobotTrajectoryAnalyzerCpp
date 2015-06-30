@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Joint State Populator
+-->
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>JointStatePopulator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>Joint State Populator</name>
+    <description>Populates the CAS with joint state data.</description>
+    <version>1.0</version>
+    <vendor>ahoereth</vendor>
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>Host</name>
+        <description>Mongo DB Host URL.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Database</name>
+        <description>Mongo Database name.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Collection</name>
+        <description>Mongo collection name.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+
+    <!-- Values for the configuration parameters -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>Host</name>
+        <value>
+          <string>localhost</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Database</name>
+        <value>
+          <string>dummy1</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Collection</name>
+        <value>
+          <string>joint_states</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!--
+      TypeSystem Definition
+    -->
+    <typeSystemDescription>
+      <imports>
+        <import location="TypeSystem.xml"/>
+      </imports>
+    </typeSystemDescription>
+
+    <!--
+      Capabilities: Inputs, Outputs, and Preconditions
+    -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+          <type allAnnotatorFeatures="true">JointTrajectoryPoint</type>
+        </inputs>
+        <outputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+          <type allAnnotatorFeatures="true">JointTrajectoryPoint</type>
+        </outputs>
+      </capability>
+    </capabilities>
+
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>true</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+
+</taeDescription>

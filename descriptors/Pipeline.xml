@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/Pipeline.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>false</primitive>
+
+  <delegateAnalysisEngineSpecifiers>
+    <delegateAnalysisEngine key="JointStatePopulator">
+      <import location="JointStatePopulator.xml"/>
+    </delegateAnalysisEngine>
+  </delegateAnalysisEngineSpecifiers>
+
+  <analysisEngineMetaData>
+    <name>Main pipeline specifing the annotator flow.</name>
+    <description></description>
+    <version>1.0</version>
+    <vendor>ahoereth</vendor>
+    <flowConstraints>
+      <fixedFlow>
+        <node>JointStatePopulator</node>
+      </fixedFlow>
+    </flowConstraints>
+  </analysisEngineMetaData>
+
+</analysisEngineDescription>
