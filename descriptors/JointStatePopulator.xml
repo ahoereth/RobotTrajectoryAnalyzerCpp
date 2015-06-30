@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  Joint State Populator
+  descriptors/JointStatePopulator.xml
 -->
-<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
   <primitive>true</primitive>
   <annotatorImplementationName>JointStatePopulator</annotatorImplementationName>
@@ -38,7 +38,6 @@
       </configurationParameter>
     </configurationParameters>
 
-
     <!-- Values for the configuration parameters -->
     <configurationParameterSettings>
       <nameValuePair>
@@ -61,36 +60,11 @@
       </nameValuePair>
     </configurationParameterSettings>
 
-    <!--
-      TypeSystem Definition
-    -->
+    <!-- TypeSystem Definition -->
     <typeSystemDescription>
       <imports>
         <import location="TypeSystem.xml"/>
       </imports>
     </typeSystemDescription>
-
-    <!--
-      Capabilities: Inputs, Outputs, and Preconditions
-    -->
-    <capabilities>
-      <capability>
-        <inputs>
-          <type allAnnotatorFeatures="true">JointState</type>
-          <type allAnnotatorFeatures="true">JointTrajectoryPoint</type>
-        </inputs>
-        <outputs>
-          <type allAnnotatorFeatures="true">JointState</type>
-          <type allAnnotatorFeatures="true">JointTrajectoryPoint</type>
-        </outputs>
-      </capability>
-    </capabilities>
-
-    <operationalProperties>
-      <modifiesCas>true</modifiesCas>
-      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
-      <outputsNewCASes>true</outputsNewCASes>
-    </operationalProperties>
   </analysisEngineMetaData>
-
-</taeDescription>
+</analysisEngineDescription>

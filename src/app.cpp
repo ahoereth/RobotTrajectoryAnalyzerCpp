@@ -17,14 +17,19 @@ int main(int argc, char * argv[]) {
   ResourceManager::createInstance("UIMACPP_EXAMPLE_APPLICATION");
 
   // Initialize Analysis Engine.
-  AnalysisEngine *pEngine = Framework::createAnalysisEngine(
-      "descriptors/JointStatePopulator.xml", errorInfo);
-  //AnalysisEngine *pEngine =
-  //  Framework::createAnalysisEngine("descriptors/Pipeline.xml", errorInfo);
-  (void) utils::checkError(errorInfo);
+  AnalysisEngine *pEngine =
+    Framework::createAnalysisEngine("descriptors/Pipeline.xml", errorInfo);
+  utils::checkError(errorInfo);
 
   // Get a new CAS.
   CAS *tcas = pEngine->newCAS();
+
+  // We do not use a sofa document or datastream. Instead the first Annotator
+  // in the aggregate flow is a Populator and fills the CAS with data which
+  // is then analyzed by the annotators further down the stream.
+  // Ideally this would take a more UIMA native approach using sofas.
+  icu::UnicodeString us = "Some Text";
+  tcas->setDocumentText(us);
 
   // Process the CAS.
   TyErrorId utErrorId = pEngine->process(*tcas);

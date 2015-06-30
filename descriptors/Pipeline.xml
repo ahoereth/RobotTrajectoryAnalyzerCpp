@@ -13,15 +13,17 @@
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
-    <name>Main pipeline specifing the annotator flow.</name>
+    <name>Pipeline</name>
     <description></description>
     <version>1.0</version>
     <vendor>ahoereth</vendor>
+    <configurationParameters/>
+    <configurationParameterSettings/>
+
     <flowConstraints>
       <fixedFlow>
         <node>JointStatePopulator</node>
       </fixedFlow>
     </flowConstraints>
   </analysisEngineMetaData>
-
 </analysisEngineDescription>
