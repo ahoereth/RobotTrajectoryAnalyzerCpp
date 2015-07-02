@@ -4,32 +4,23 @@
 
 #include <string>
 #include "uima/api.hpp"
+#include "StdCoutLogger.hpp"
 
 
 /**
  * Helper routine to check and report errors. Exits the program on error.
  *
- * @param {TyErrorId}      utErrorId
+ * @param {TyErrorId}      errorId
  * @param {AnalysisEngine} crEngine
  */
 void checkError(
-  uima::TyErrorId utErrorId,
-  const uima::AnalysisEngine& crEngine
+  uima::TyErrorId errorId,
+  const uima::AnalysisEngine& engine
 ) {
-  if (utErrorId != UIMA_ERR_NONE) {
-    std::cerr << std::endl
-      << "   *** Error info:" << std::endl
-      << "Error number        : " << utErrorId << std::endl
-      << "Error string        : "
-      << uima::AnalysisEngine::getErrorIdAsCString(utErrorId) << std::endl;
-
-    const TCHAR* errStr =
-      crEngine.getAnnotatorContext().getLogger().getLastErrorAsCStr();
-    if (errStr != NULL) {
-      std::cerr << "  Last logged message : "  << errStr << std::endl;
-    }
-
-    exit(static_cast<int>(utErrorId));
+  if (errorId != UIMA_ERR_NONE) {
+    uima::LogFacility& log = engine.getAnnotatorContext().getLogger();
+    log.logError(uima::AnalysisEngine::getErrorIdAsCString(errorId));
+    exit(static_cast<int>(errorId));
   }
 }
 
@@ -37,18 +28,13 @@ void checkError(
 /**
  * Helper routine to check and report errors. Exits the program on error.
  *
- * @param {ErrorInfo}      errInfo
+ * @param {ErrorInfo} errInfo
  */
-void checkError(const uima::ErrorInfo& errInfo) {
-  if (errInfo.getErrorId() != UIMA_ERR_NONE) {
-    std::cerr << std::endl
-      << "   *** Error info:" << std::endl
-      << "Error string  : "
-      << uima::AnalysisEngine::getErrorIdAsCString(errInfo.getErrorId())
-      << errInfo << std::endl;
-
-    exit(static_cast<int>(errInfo.getErrorId()));
-  }
+void checkError(
+  const uima::ErrorInfo& errInfo,
+  const uima::AnalysisEngine& engine
+) {
+  checkError(errInfo.getErrorId(), engine);
 }
 
 
@@ -64,35 +50,47 @@ int main(int argc, char * argv[]) {
   uima::ErrorInfo errorInfo;
 
   // Create a resource manager instance (singleton)
-  uima::ResourceManager::createInstance("UIMACPP_EXAMPLE_APPLICATION");
+  uima::ResourceManager& resourceManager =
+    uima::ResourceManager::createInstance("RobotTrajectoryAnalyzer");
+
+  // Register terminal logger.
+  StdCoutLogger* stdCoutLogger = new StdCoutLogger(false);
+  resourceManager.registerLogger(stdCoutLogger);
+
+  // Register file logger.
+  uima::FileLogger* fileLogger = new uima::FileLogger("uima.log");
+  resourceManager.registerLogger(fileLogger);
 
   // Initialize Analysis Engine.
-  uima::AnalysisEngine *pEngine = uima::Framework::createAnalysisEngine(
+  uima::AnalysisEngine* engine = uima::Framework::createAnalysisEngine(
     "descriptors/Pipeline.xml", errorInfo);
-  checkError(errorInfo);
+  checkError(errorInfo, *engine);
 
   // Get a new CAS.
-  uima::CAS *tcas = pEngine->newCAS();
+  uima::CAS* cas = engine->newCAS();
 
+  // Initialize SOFA.
   // We do not use a sofa document or datastream. Instead the first Annotator
   // in the aggregate flow is a Populator and fills the CAS with data which
   // is then analyzed by the annotators further down the stream.
   // Ideally this would take a more UIMA native approach using sofas.
   icu::UnicodeString us = "Some Text";
-  tcas->setDocumentText(us);
+  cas->setDocumentText(us);
 
   // Process the CAS.
-  uima::TyErrorId utErrorId = pEngine->process(*tcas);
-  checkError(utErrorId, *pEngine);
+  uima::TyErrorId errorId = engine->process(*cas);
+  checkError(errorId, *engine);
 
   // Call collectionProcessComplete.
-  utErrorId = pEngine->collectionProcessComplete();
+  errorId = engine->collectionProcessComplete();
 
-  // Free ressorces.
-  utErrorId = pEngine->destroy();
-  checkError(utErrorId, *pEngine);
-  delete tcas;
-  delete pEngine;
+  // Free resorces.
+  errorId = engine->destroy();
+  checkError(errorId, *engine);
+  delete cas;
+  delete engine;
+  delete stdCoutLogger;
+  delete fileLogger;
 
   std::cout << "App: processing finished sucessfully! " << std::endl;
   return(0);

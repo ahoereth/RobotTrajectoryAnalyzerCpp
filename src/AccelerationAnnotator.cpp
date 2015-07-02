@@ -10,36 +10,36 @@
 #include <iostream>
 #include "uima/api.hpp"
 
-//  using namespace uima;
+
 using std::string;
 using std::vector;
-using std::cout;
-using std::endl;
 using uima::Annotator;  // required for MAKE_AE
+using uima::Feature;
 
 
 class AccelerationAnnotator : public Annotator {
  private:
+  uima::LogFacility* log;
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
   uima::Type Acceleration;
 
  public:
-  AccelerationAnnotator(void) {
-    cout << "AccelerationAnnotator: Constructor" << endl;
-  }
+  /** Constructor */
+  AccelerationAnnotator(void) {}
 
-  ~AccelerationAnnotator(void) {
-    cout << "AccelerationAnnotator: Destructor" << endl;
-  }
+
+  /** Destructor */
+  ~AccelerationAnnotator(void) {}
 
 
   /**
    * Annotator initialization.
    */
-  uima::TyErrorId initialize(uima::AnnotatorContext &rclAnnotatorContext) {
-    cout << "AccelerationAnnotator: initialize()" << endl;
-    return (uima::TyErrorId)UIMA_ERR_NONE;
+  uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
+    log = &annotatorContext.getLogger();
+    log->logMessage("AccelerationAnnotator::initialize()");
+    return UIMA_ERR_NONE;
   }
 
 
@@ -49,34 +49,29 @@ class AccelerationAnnotator : public Annotator {
    * Types:
    *   * JointState
    *   * JointTrajectoryPoint
+   *   * Acceleration
    */
-  uima::TyErrorId typeSystemInit(const uima::TypeSystem &crTypeSystem) {
-    cout << "AccelerationAnnotator:: typeSystemInit()" << endl;
+  uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
+    log->logMessage("AccelerationAnnotator::typeSystemInit()");
 
     // JointState *********************************************
-    JointState = crTypeSystem.getType("JointState");
+    JointState = typeSystem.getType("JointState");
     if (!JointState.isValid()) {
-      getAnnotatorContext().getLogger().logError(
-        "Error getting Type object for JointState");
-      cout << "JointStatePopulator::typeSystemInit - Error" << endl;
+      log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
     // JointTrajectoryPoint ***********************************
-    JointTrajectoryPoint = crTypeSystem.getType("JointTrajectoryPoint");
+    JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
     if (!JointTrajectoryPoint.isValid()) {
-      getAnnotatorContext().getLogger().logError(
-        "Error getting Type object for JointTrajectoryPoint");
-      cout << "JointStatePopulator::typeSystemInit - Error" << endl;
+      log->logError("Error getting Type object for JointTrajectoryPoint");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
     // Acceleration *******************************************
-    Acceleration = crTypeSystem.getType("Acceleration");
+    Acceleration = typeSystem.getType("Acceleration");
     if (!Acceleration.isValid()) {
-      getAnnotatorContext().getLogger().logError(
-        "Error getting Type object for Acceleration");
-      cout << "JointStatePopulator::typeSystemInit - Error" << endl;
+      log->logError("Error getting Type object for Acceleration");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
@@ -88,23 +83,23 @@ class AccelerationAnnotator : public Annotator {
    * Clean up on annotator destruction.
    */
   uima::TyErrorId destroy() {
-    cout << "AccelerationAnnotator: destroy()" << endl;
-    return (uima::TyErrorId)UIMA_ERR_NONE;
+    log->logMessage("AccelerationAnnotator::destroy()");
+    return UIMA_ERR_NONE;
   }
 
 
   /**
-   * Do some work: Data processing.
+   * Data processing.
    */
   uima::TyErrorId process(
     uima::CAS& cas,
-    const uima::ResultSpecification& crResultSpecification
+    const uima::ResultSpecification& resultSpecification
   ) {
-    cout << "AccelerationAnnotator::process() begins" << endl;
-    cout << "AccelerationAnnotator::process() ends" << endl;
-    return (uima::TyErrorId)UIMA_ERR_NONE;
+    log->logMessage("AccelerationAnnotator::process() begins");
+    log->logMessage("AccelerationAnnotator::process() ends");
+    return UIMA_ERR_NONE;
   }
 };
 
-// This macro exports an entry point that is used to create the annotator.
+
 MAKE_AE(AccelerationAnnotator);

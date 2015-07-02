@@ -37,7 +37,9 @@ EXE_LFLAGS := -lxerces-c -licuuc -licuio -licui18n -licudata \
 SRCS := $(shell find $(SRCDIR) -maxdepth 1 -type f \
 	 -name *Populator.cpp -o -name *Annotator.cpp)
 LIBS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCS:.cpp=.so))
-EXE     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(EXE_SRC:.cpp=))
+DEPS_SRCS := src/StdCoutLogger.cpp
+DEPS_OBJS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(DEPS_SRCS:.cpp=.o))
+EXE := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(EXE_SRC:.cpp=))
 
 # add mongo linkflags just for specific annotators
 bin/JointStatePopulator.so: LFLAGS+=$(MONGO_LFLAGS)
@@ -46,7 +48,7 @@ bin/JointStatePopulator.so: LFLAGS+=$(MONGO_LFLAGS)
 all: $(LIBS) $(EXE)
 
 # build executable
-$(EXE): $(EXE_SRC)
+$(EXE): $(DEPS_OBJS) $(EXE_SRC)
 	$(CC) $(DEPS_OBJS) $(EXE_SRC) \
 	 $(MONGO_LFLAGS) \
 	 $(LFLAGS) \
@@ -54,18 +56,18 @@ $(EXE): $(EXE_SRC)
 	 $(EXE_LFLAGS) -g \
 	 -o $(EXE) $(INC) $(LIB)
 
+# build specific shared library, *.so
+$(BUILDDIR)/%.so: $(BUILDDIR)/%.o $(DEPS_OBJS)
+	$(CC) $(DEPS_OBJS) $< \
+	$(LFLAGS) -shared \
+	-o $@
+
 # build specific object, *.o
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) \
 	 $(INCLUDES) \
 	 -c $< -o $@
-
-# build specific shared library, *.so
-$(BUILDDIR)/%.so: $(BUILDDIR)/%.o $(DEPS_OBJS)
-	$(CC) $(DEPS_OBJS) $< \
-	 $(LFLAGS) -shared \
-	 -o $@
 
 # remove ./bin directory
 clean:

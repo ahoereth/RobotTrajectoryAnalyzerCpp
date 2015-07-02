@@ -10,14 +10,11 @@
 #include <iostream>
 #include "uima/api.hpp"
 #include "mongo/client/dbclient.h"
-#include "unicode/stringpiece.h"
 #include "unicode/unistr.h"
 
 //  using namespace uima;
 using std::string;
 using std::vector;
-using std::cout;
-using std::endl;
 using uima::Annotator;  // required for MAKE_AE
 
 
@@ -79,6 +76,7 @@ uima::StringArrayFS fieldToStringArrayFS(
 
 class JointStatePopulator : public Annotator {
  private:
+  uima::LogFacility* log;
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
 
@@ -90,54 +88,51 @@ class JointStatePopulator : public Annotator {
 
 
  public:
+  /** Constructor */
   JointStatePopulator(void) {
-    cout << "JointStatePopulator: Constructor" << endl;
     mongo::client::initialize();
   }
 
-  ~JointStatePopulator(void) {
-    cout << "JointStatePopulator: Destructor" << endl;
-  }
+
+  /** Destructor */
+  ~JointStatePopulator(void) {}
+
 
   /**
    * Annotator initialization.
    */
-  uima::TyErrorId initialize(uima::AnnotatorContext &rclAnnotatorContext) {
-    cout << "JointStatePopulator: initialize()" << endl;
+  uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
+    log = &annotatorContext.getLogger();
+    log->logMessage("JointStatePopulator: initialize()");
 
     host = "localhost";
-    if (rclAnnotatorContext.isParameterDefined("Host")) {
-      rclAnnotatorContext.extractValue("Host", host);
+    if (annotatorContext.isParameterDefined("Host")) {
+      annotatorContext.extractValue("Host", host);
     }
 
     database = "dummy1";
-    if (rclAnnotatorContext.isParameterDefined("Database")) {
-      rclAnnotatorContext.extractValue("Database", database);
+    if (annotatorContext.isParameterDefined("Database")) {
+      annotatorContext.extractValue("Database", database);
     }
 
     collection = "joint_states";
-    if (rclAnnotatorContext.isParameterDefined("Collection")) {
-      rclAnnotatorContext.extractValue("Collection", collection);
+    if (annotatorContext.isParameterDefined("Collection")) {
+      annotatorContext.extractValue("Collection", collection);
     }
 
-    // Log configuration info.
-    rclAnnotatorContext.getLogger().logMessage(
-      "Host = '" + host + "', "
-      "Database = '" + database + "', "
-      "Collection = '" + collection + "'");
-
-    cout << "host: " << host << ", database: " << database
-              << ", collection: " << collection << endl;
+    log->logMessage("Host: '" + host + "', "
+                   "Database: '" + database + "', "
+                   "Collection: '" + collection + "'");
 
     try {
       conn.connect(host);
-      cout << "connected ok" << endl;
-    } catch (const mongo::DBException &e) {
-      cout << "caught " << e.what() << endl;
+      log->logMessage("connected ok");
+    } catch (const mongo::DBException& e) {
+      log->logError("caught " + e.toString());
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
-    return (uima::TyErrorId)UIMA_ERR_NONE;
+    return UIMA_ERR_NONE;
   }
 
 
@@ -148,29 +143,24 @@ class JointStatePopulator : public Annotator {
    *   * JointState
    *   * JointTrajectoryPoint
    */
-  uima::TyErrorId typeSystemInit(const uima::TypeSystem &crTypeSystem) {
-    cout << "JointStatePopulator:: typeSystemInit() begins" << endl;
+  uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
+    log->logMessage("JointStatePopulator:: typeSystemInit() begins");
 
     // JointState *********************************************
-    JointState = crTypeSystem.getType("JointState");
+    JointState = typeSystem.getType("JointState");
     if (!JointState.isValid()) {
-      getAnnotatorContext().getLogger().logError(
-        "Error getting Type object for JointState");
-      cout << "JointStatePopulator::typeSystemInit - Error" << endl;
+      log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
     // JointTrajectoryPoint ***********************************
-    JointTrajectoryPoint = crTypeSystem.getType("JointTrajectoryPoint");
+    JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
     if (!JointTrajectoryPoint.isValid()) {
-      getAnnotatorContext().getLogger().logError(
-        "Error getting Type object for JointTrajectoryPoint");
-      cout << "JointStatePopulator::typeSystemInit - Error" << endl;
+      log->logError("Error getting Type object for JointTrajectoryPoint");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
-    cout << "JointStatePopulator:: typeSystemInit() ends" << endl;
-
+    log->logMessage("JointStatePopulator:: typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -179,19 +169,19 @@ class JointStatePopulator : public Annotator {
    * Clean up on annotator destruction.
    */
   uima::TyErrorId destroy() {
-    cout << "JointStatePopulator: destroy()" << endl;
-    return (uima::TyErrorId)UIMA_ERR_NONE;
+    log->logMessage("JointStatePopulator: destroy()");
+    return UIMA_ERR_NONE;
   }
 
 
   /**
-   * Do some work: Data processing.
+   * Data processing.
    */
   uima::TyErrorId process(
     uima::CAS& cas,
-    const uima::ResultSpecification& crResultSpecification
+    const uima::ResultSpecification& resultSpecification
   ) {
-    cout << "JointStatePopulator::process() begins" << endl;
+    log->logMessage("JointStatePopulator::process() begins");
 
     std::auto_ptr<mongo::DBClientCursor> cursor =
       conn.query(database + "." + collection, mongo::BSONObj());
@@ -227,10 +217,10 @@ class JointStatePopulator : public Annotator {
       jointStates.addLast(js);
     }
 
-    cout << "JointStatePopulator::process() ends" << endl;
-    return (uima::TyErrorId)UIMA_ERR_NONE;
+    log->logMessage("JointStatePopulator::process() ends");
+    return UIMA_ERR_NONE;
   }
 };
 
-// This macro exports an entry point that is used to create the annotator.
+
 MAKE_AE(JointStatePopulator);
