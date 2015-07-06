@@ -1,18 +1,10 @@
 /**
  * src/AccelerationAnnotator.cpp
- *
- * Copyright 2015 Alexander Hoereth
  */
 
-#include <string>
-#include <vector>
-#include <cstdlib>
-#include <iostream>
 #include "uima/api.hpp"
 
 
-using std::string;
-using std::vector;
 using uima::Annotator;  // required for MAKE_AE
 using uima::Feature;
 

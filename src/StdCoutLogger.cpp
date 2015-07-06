@@ -1,7 +1,5 @@
 /**
  * src/StdOutLogger.cpp
- *
- * Copyright 2015 Alexander Hoereth
  */
 
 #include <string>
@@ -18,10 +16,13 @@ void StdCoutLogger::log(
   long lUserCode
 ) {
   if (headline) {
-    std::cout << std::endl << "   *** StdOutLogger ***   " << std::endl;
+    std::cout << std::endl << "   *** StdCoutLogger ***   " << std::endl;
   }
 
-//  std::cout << "Class   : " << cpszClass << std::endl;
+  if (cpszClass.length() > 0) {
+    std::cout << cpszClass << "  :  ";
+  }
+
   if (cpszMethod.length() > 0) {
     std::cout << "Method  : " << cpszMethod << std::endl;
   }

@@ -1,34 +1,17 @@
 /**
  * src/JointStatePopulator.cpp
- *
- * Copyright 2015 Alexander Hoereth
  */
 
 #include <string>
 #include <vector>
-#include <cstdlib>
-#include <iostream>
+#include <cstdlib>  // size_t
 #include "uima/api.hpp"
 #include "mongo/client/dbclient.h"
-#include "unicode/unistr.h"
+#include "utils.hpp"
 
-//  using namespace uima;
-using std::string;
-using std::vector;
+
 using uima::Annotator;  // required for MAKE_AE
 using uima::Feature;
-
-
-/**
- * Convert a C++ standard string to a ICU Unicode String as required by many
- * UIMA applications.
- *
- * @param  {std::string} str
- * @return {icu::UnicodeString}
- */
-icu::UnicodeString sToUs(const std::string& str) {
-  return icu::UnicodeString(str.data(), str.length(), US_INV);
-}
 
 
 class JointStatePopulator : public Annotator {
@@ -38,9 +21,9 @@ class JointStatePopulator : public Annotator {
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
 
-  string host;
-  string database;
-  string collection;
+  std::string host;
+  std::string database;
+  std::string collection;
 
   mongo::DBClientConnection conn;
 
@@ -56,7 +39,7 @@ class JointStatePopulator : public Annotator {
     uima::StringArrayFS fs = currentCas->createStringArrayFS(vec.size());
 
     for (std::size_t i = 0; i < vec.size(); ++i) {
-      fs.set(i, sToUs(vec[i].String()));
+      fs.set(i, utils::sToUs(vec[i].String()));
     }
 
     return fs;
@@ -84,6 +67,7 @@ class JointStatePopulator : public Annotator {
  public:
   /** Constructor */
   JointStatePopulator(void) {
+    std::cout << "JointStatePopulator - mongo initialization" << std::endl;
     mongo::client::initialize();
   }
 
@@ -198,13 +182,15 @@ class JointStatePopulator : public Annotator {
       mongo::BSONObj obj = cursor->next();
       mongo::BSONObj header = obj.getObjectField("header");
 
-      uima::FeatureStructure js = cas.createFS(JointState);
+      std::size_t seq = header.getIntField("seq");
+      uima::FeatureStructure js = cas.createAnnotation(JointState, seq, seq);
       uima::FeatureStructure jtp = cas.createFS(JointTrajectoryPoint);
 
       js.setFSValue(jtpFtr, jtp);
+      js.setIntValue(seqFtr, seq);
       js.setIntValue(seqFtr, header.getIntField("seq"));
       js.setIntValue(timeFtr, header.getField("stamp").Date().asInt64());
-      js.setStringValue(frameFtr, sToUs(obj.getField("frame_id")));
+      js.setStringValue(frameFtr, utils::sToUs(obj.getField("frame_id")));
       js.setFSValue(nameFtr, fieldToStringArrayFS(obj.getField("name")));
       jtp.setFSValue(posFtr, fieldToDoubleArrayFS(obj.getField("position")));
       jtp.setFSValue(effFtr, fieldToDoubleArrayFS(obj.getField("effort")));

@@ -8,7 +8,7 @@ BUILDDIR := bin
 EXE_SRC := src/app.cpp
 
 # compile flags
-CFLAGS := -Wall -x c++ $(BUILD_CFLAGS)
+CFLAGS := -Wall -x c++
 
 # link flags
 LFLAGS := -L$(UIMACPP_HOME)/lib -luima -lapr-1
@@ -19,6 +19,7 @@ MONGO_LFLAGS := -pthread -lmongoclient -lboost_thread \
 
 ifeq ($(DEBUG), 1) # debugging
   CFLAGS += -DDEBUG -g -fno-inline -fno-default-inline -fPIC
+	LFLAGS += -g
 else
   LFLAGS += -Wl,--strip-debug
   CFLAGS += -DNDEBUG -DTRACEOFF -O3 -fPIC
@@ -37,7 +38,7 @@ EXE_LFLAGS := -lxerces-c -licuuc -licuio -licui18n -licudata \
 SRCS := $(shell find $(SRCDIR) -maxdepth 1 -type f \
 	 -name *Populator.cpp -o -name *Annotator.cpp)
 LIBS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCS:.cpp=.so))
-DEPS_SRCS := src/StdCoutLogger.cpp
+DEPS_SRCS := src/StdCoutLogger.cpp src/utils.cpp
 DEPS_OBJS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(DEPS_SRCS:.cpp=.o))
 EXE := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(EXE_SRC:.cpp=))
 
@@ -53,7 +54,7 @@ $(EXE): $(DEPS_OBJS) $(EXE_SRC)
 	 $(MONGO_LFLAGS) \
 	 $(LFLAGS) \
 	 $(INCLUDES) \
-	 $(EXE_LFLAGS) -g \
+	 $(EXE_LFLAGS) \
 	 -o $(EXE) $(INC) $(LIB)
 
 # build specific shared library, *.so

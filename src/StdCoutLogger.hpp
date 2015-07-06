@@ -1,7 +1,5 @@
 /**
  * src/StdOutLogger.cpp
- *
- * Copyright 2015 Alexander Hoereth
  */
 
 #include <string>

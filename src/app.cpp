@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Alexander Hoereth
+ * src/app.cpp
  */
 
 #include <string>
@@ -14,7 +14,7 @@
  * @param {AnalysisEngine} crEngine
  */
 void checkError(
-  uima::TyErrorId errorId,
+  const uima::TyErrorId& errorId,
   const uima::AnalysisEngine& engine
 ) {
   if (errorId != UIMA_ERR_NONE) {
@@ -46,7 +46,7 @@ void checkError(
  * @param  {char[]} argv
  * @return {int}
  */
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[]) {
   uima::ErrorInfo errorInfo;
 
   // Create a resource manager instance (singleton)
@@ -63,7 +63,7 @@ int main(int argc, char * argv[]) {
 
   // Initialize Analysis Engine.
   uima::AnalysisEngine* engine = uima::Framework::createAnalysisEngine(
-    "descriptors/Pipeline.xml", errorInfo);
+    true, "descriptors/Pipeline.xml", errorInfo);
   checkError(errorInfo, *engine);
 
   // Get a new CAS.
