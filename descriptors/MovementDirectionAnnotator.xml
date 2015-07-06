@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/MovementDirectionAnnotator.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>MovementDirectionAnnotator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>Movement Direction Annotator</name>
+    <description>Annotates directional movement data.</description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="../types/JointState.xml"/>
+        <import location="../types/Movement.xml"/>
+        <import location="../types/DirectionalMovement.xml"/>
+      </imports>
+    </typeSystemDescription>
+  </analysisEngineMetaData>
+</analysisEngineDescription>

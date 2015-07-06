@@ -5,11 +5,10 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <cstdlib>
-#include <iostream>
-#include <cmath>
+#include <cstdlib>  // size_t
+#include <cmath>  // pow
 #include "uima/api.hpp"
-#include "unicode/unistr.h"
+#include "unicode/unistr.h"  // UnicodeString
 #include "utils.hpp"
 
 
@@ -73,6 +72,7 @@ class MovementAnnotator : public Annotator {
    * Types:
    *   * JointState
    *   * JointTrajectoryPoint
+   *   * Movement
    *
    * @param  typeSystem The container of all types available through the AE.
    * @return UIMA error type id - UIMA_ERR_NONE on success.

@@ -3,9 +3,9 @@
  */
 
 #include <string>
-#include <sstream>
-#include <cstdlib>
-#include "unicode/unistr.h"
+#include <sstream>  // ostringstream
+#include <cstdlib>  // size_t
+#include "unicode/unistr.h"  // UnicodeString
 
 /**
  * General C++ helper functions. Some of those are reimplementations of

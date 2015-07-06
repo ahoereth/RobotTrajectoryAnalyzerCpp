@@ -16,13 +16,16 @@
     <delegateAnalysisEngine key="MovementAnnotator">
       <import location="MovementAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="MovementDirectionAnnotator">
+      <import location="MovementDirectionAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
     <name>Pipeline</name>
     <description></description>
     <version>1.0</version>
-    <vendor>ahoereth</vendor>
+    <vendor/>
     <configurationParameters/>
     <configurationParameterSettings/>
 
@@ -31,6 +34,7 @@
         <node>JointStatePopulator</node>
         <node>AccelerationAnnotator</node>
         <node>MovementAnnotator</node>
+        <node>MovementDirectionAnnotator</node>
       </fixedFlow>
     </flowConstraints>
   </analysisEngineMetaData>

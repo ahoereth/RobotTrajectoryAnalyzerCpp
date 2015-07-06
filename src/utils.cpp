@@ -3,9 +3,9 @@
  */
 
 #include <string>
-#include <sstream>
+#include <sstream>  // ostringstream
 #include <cstdlib>  // size_t
-#include "unicode/unistr.h"
+#include "unicode/unistr.h"  // UnicodeString
 #include "utils.hpp"
 
 
