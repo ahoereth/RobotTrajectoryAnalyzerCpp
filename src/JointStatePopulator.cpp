@@ -31,8 +31,8 @@ class JointStatePopulator : public Annotator {
   /**
    * Convert a mongo BSON element to a UIMA CAS Double Array Feature Structure.
    *
-   * @param  {mongo::BSONElement}  field
-   * @return {uima::StringArrayFS}
+   * @param  field Element containing an array of elements with string values.
+   * @return Returns a string array feature structure.
    */
   uima::StringArrayFS fieldToStringArrayFS(const mongo::BSONElement& field) {
     std::vector<mongo::BSONElement> vec = field.Array();
@@ -49,8 +49,8 @@ class JointStatePopulator : public Annotator {
   /**
    * Convert a mongo BSON element to a UIMA CAS String Array Feature Structure.
    *
-   * @param  {mongo::BSONElement}  field
-   * @return {uima::DoubleArrayFS}
+   * @param  field Element containing an array of elements with double values.
+   * @return Returns a double array feature structure.
    */
   uima::DoubleArrayFS fieldToDoubleArrayFS(const mongo::BSONElement& field) {
     std::vector<mongo::BSONElement> vec = field.Array();
@@ -78,6 +78,9 @@ class JointStatePopulator : public Annotator {
 
   /**
    * Annotator initialization.
+   *
+   * @param  annotatorContext Interface to the analysis engine's configuration.
+   * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
     log = &annotatorContext.getLogger();
@@ -120,6 +123,9 @@ class JointStatePopulator : public Annotator {
    * Types:
    *   * JointState
    *   * JointTrajectoryPoint
+   *
+   * @param  typeSystem The container of all types available through the AE.
+   * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
     log->logMessage("JointStatePopulator:: typeSystemInit() begins");
@@ -145,6 +151,8 @@ class JointStatePopulator : public Annotator {
 
   /**
    * Clean up on annotator destruction.
+   *
+   * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId destroy() {
     log->logMessage("JointStatePopulator: destroy()");
@@ -154,6 +162,11 @@ class JointStatePopulator : public Annotator {
 
   /**
    * Data processing.
+   *
+   * @param  cas                 The current common analysis system.
+   * @param  resultSpecification The specification of expected results as given
+   *                             by the annotator descriptor.
+   * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId process(
     uima::CAS& cas,

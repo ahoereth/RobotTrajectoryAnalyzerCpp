@@ -1,4 +1,4 @@
-/*
+/**
  * src/app.cpp
  */
 
@@ -10,8 +10,8 @@
 /**
  * Helper routine to check and report errors. Exits the program on error.
  *
- * @param {TyErrorId}      errorId
- * @param {AnalysisEngine} crEngine
+ * @param errorId An error id which can be used to retrieve more information.
+ * @param engine  The analysis engine in which context the error occured.
  */
 void checkError(
   const uima::TyErrorId& errorId,
@@ -28,7 +28,10 @@ void checkError(
 /**
  * Helper routine to check and report errors. Exits the program on error.
  *
- * @param {ErrorInfo} errInfo
+ * Delegates to the preceding checkError method.
+ *
+ * @param errInfo ErrorInfo object containing a complete error information set.
+ * @param engine  The analysis engine in which context the error occured.
  */
 void checkError(
   const uima::ErrorInfo& errInfo,
@@ -42,11 +45,12 @@ void checkError(
  * Main application for initializing the UIMA aggregation flow and
  * visualizing results.
  *
- * @param  {int}    argc
- * @param  {char[]} argv
- * @return {int}
+ * @param  argc
+ * @param  argv
+ * @return
  */
 int main(int argc, char* argv[]) {
+  uima::TyErrorId errorId;
   uima::ErrorInfo errorInfo;
 
   // Create a resource manager instance (singleton)
@@ -78,7 +82,7 @@ int main(int argc, char* argv[]) {
   cas->setDocumentText(us);
 
   // Process the CAS.
-  uima::TyErrorId errorId = engine->process(*cas);
+  errorId = engine->process(*cas);
   checkError(errorId, *engine);
 
   // Call collectionProcessComplete.
@@ -93,5 +97,5 @@ int main(int argc, char* argv[]) {
   delete fileLogger;
 
   std::cout << "App: processing finished sucessfully! " << std::endl;
-  return(0);
+  return 0;
 }
