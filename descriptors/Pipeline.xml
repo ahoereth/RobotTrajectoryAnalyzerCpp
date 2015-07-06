@@ -13,6 +13,9 @@
     <delegateAnalysisEngine key="AccelerationAnnotator">
       <import location="AccelerationAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="MovementAnnotator">
+      <import location="MovementAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -27,6 +30,7 @@
       <fixedFlow>
         <node>JointStatePopulator</node>
         <node>AccelerationAnnotator</node>
+        <node>MovementAnnotator</node>
       </fixedFlow>
     </flowConstraints>
   </analysisEngineMetaData>

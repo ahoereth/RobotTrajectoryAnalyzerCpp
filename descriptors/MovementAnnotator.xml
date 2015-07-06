@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/MovementAnnotator.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>MovementAnnotator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>Movement Annotator</name>
+    <description>Annotates movement data.</description>
+    <version>1.0</version>
+    <vendor>ahoereth</vendor>
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>MinVariance</name>
+        <description>Minimum variance to detect.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>ObservedJointStates</name>
+        <description>Amount of joined states to observe.</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Values for the configuration parameters -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>MinVariance</name>
+        <value>
+          <float>0.000003</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>ObservedJointStates</name>
+        <value>
+          <integer>10</integer>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="../types/JointState.xml"/>
+        <import location="../types/Movement.xml"/>
+      </imports>
+    </typeSystemDescription>
+  </analysisEngineMetaData>
+</analysisEngineDescription>

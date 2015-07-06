@@ -14,5 +14,8 @@
 namespace utils {
 
 icu::UnicodeString sToUs(const std::string& str);
+std::string toString(float x);
+std::string toString(int x);
+std::string toString(std::size_t x);
 
 }  // namespace utils
