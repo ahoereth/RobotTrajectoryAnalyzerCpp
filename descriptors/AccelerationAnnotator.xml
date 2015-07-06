@@ -13,10 +13,11 @@
     <version>1.0</version>
     <vendor>ahoereth</vendor>
 
-    <!-- TypeSystem Definition -->
+    <!-- Type System Definitions -->
     <typeSystemDescription>
       <imports>
-        <import location="TypeSystem.xml"/>
+        <import location="../types/JointState.xml"/>
+        <import location="../types/Acceleration.xml"/>
       </imports>
     </typeSystemDescription>
   </analysisEngineMetaData>

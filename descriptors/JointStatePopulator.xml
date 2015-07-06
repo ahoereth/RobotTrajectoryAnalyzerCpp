@@ -38,7 +38,7 @@
       </configurationParameter>
     </configurationParameters>
 
-    <!-- Values for the configuration parameters -->
+    <!-- Configuration Parameter Values -->
     <configurationParameterSettings>
       <nameValuePair>
         <name>Host</name>
@@ -60,10 +60,10 @@
       </nameValuePair>
     </configurationParameterSettings>
 
-    <!-- TypeSystem Definition -->
+    <!-- Type System Defenitions -->
     <typeSystemDescription>
       <imports>
-        <import location="TypeSystem.xml"/>
+        <import location="../types/JointState.xml"/>
       </imports>
     </typeSystemDescription>
   </analysisEngineMetaData>
