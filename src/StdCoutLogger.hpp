@@ -1,6 +1,9 @@
-/**
- * src/StdOutLogger.cpp
- */
+//////
+// src/StdCoutLogger.cpp
+
+#ifndef __STDCOUTLOGGER_INCLUDE__
+#define __STDCOUTLOGGER_INCLUDE__
+
 
 #include <string>
 #include <iostream>
@@ -21,3 +24,6 @@ class StdCoutLogger : public uima::Logger {
                    std::string message,
                    long errorCode);
 };
+
+
+#endif  // ifndef __STDCOUTLOGGER_INCLUDE__

@@ -1,6 +1,9 @@
-/**
- * src/utils.hpp
- */
+//////
+// src/utils.hpp
+
+#ifndef __UTILS_INCLUDE__
+#define __UTILS_INCLUDE__
+
 
 #include <string>
 #include <vector>
@@ -38,3 +41,6 @@ void checkError(
 );
 
 }  // namespace utils
+
+
+#endif
