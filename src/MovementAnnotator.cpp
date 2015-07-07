@@ -2,7 +2,6 @@
  * src/MovementAnnotator.cpp
  */
 
-#include <string>
 #include <vector>
 #include <list>
 #include <cstdlib>  // size_t
@@ -12,8 +11,6 @@
 #include "utils.hpp"
 
 
-using std::string;
-using std::vector;
 using uima::Annotator;  // required for MAKE_AE
 using uima::Feature;
 
@@ -22,6 +19,7 @@ class MovementAnnotator : public Annotator {
  private:
   uima::LogFacility* log;
   uima::CAS* currentCas;
+
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
   uima::Type Movement;
@@ -121,35 +119,21 @@ class MovementAnnotator : public Annotator {
    * Calculate the variances in a column of a list of double array feature
    * structure rows.
    *
-   * @param  posFS List of double array feature structures.
+   * @param  lfs List of double array feature structures.
    * @return Vector of the same size as any of the passed double array
    *         feature structures.
    */
   std::vector<double> calculateVariances(
-    std::list<uima::DoubleArrayFS> posFS
+    const std::list<uima::DoubleArrayFS>& lfs
   ) {
-    std::vector<double> means(observedJointStates, 0);
-    std::vector<double> variances(observedJointStates, 0);
+    std::vector<double> variances(lfs.front().size(), 0);
+    std::size_t i = 0;
 
-    // MEANS
     for (
-      std::list<uima::DoubleArrayFS>::const_iterator positions = posFS.begin();
-      positions != posFS.end(); ++positions
+      std::list<uima::DoubleArrayFS>::const_iterator positions = lfs.begin();
+      positions != lfs.end(); ++positions, i++
     ) {
-      for (std::size_t i = 0; i < observedJointStates; i++) {
-        means[i] += positions->get(i) / observedJointStates;
-      }
-    }
-
-    // VARIANCES
-    for (
-      std::list<uima::DoubleArrayFS>::const_iterator positions = posFS.begin();
-      positions != posFS.end(); ++positions
-    ) {
-      for (std::size_t i = 0; i < observedJointStates; i++) {
-        variances[i] +=
-          (pow(means[i] - positions->get(i), 2.0) / observedJointStates);
-      }
+      variances[i] = utils::calculateVariance(utils::arrFStoVec(*positions));
     }
 
     return variances;
@@ -167,9 +151,9 @@ class MovementAnnotator : public Annotator {
    * @return      Movement annotation feature structure.
    */
   uima::AnnotationFS moveAnnotation(
-    icu::UnicodeString name,
-    std::size_t from,
-    std::size_t to
+    const icu::UnicodeString& name,
+    const std::size_t& from,
+    const std::size_t& to
   ) {
     uima::AnnotationFS move = currentCas->createAnnotation(Movement, from, to);
     move.setStringValue(Movement.getFeatureByBaseName("jointName"), name);
@@ -206,12 +190,13 @@ class MovementAnnotator : public Annotator {
     uima::ANIterator jsIter = cas.getAnnotationIndex(JointState).iterator();
 
     // Initialize reused variables.
-    uima::FeatureStructure js, jtp;
+    uima::AnnotationFS js = jsIter.get(), move;
+    uima::FeatureStructure jtp;
     uima::StringArrayFS names;
-    uima::AnnotationFS move;
-    uima::ArrayFS moves = cas.createArrayFS(observedJointStates);
+    std::size_t size = js.getStringArrayFSValue(nameFtr).size();
+    uima::ArrayFS moves = cas.createArrayFS(size);
     std::list<uima::DoubleArrayFS> prevPositions;
-    std::vector<bool> movingStates(observedJointStates, false);
+    std::vector<bool> movingStates(size, false);
     std::vector<double> variances;
     std::size_t seq;
 
@@ -253,7 +238,6 @@ class MovementAnnotator : public Annotator {
             (!movingStates[i] &&  moving) ||   // wasn't + is
              (movingStates[i] && !moving)      // was    + isn't
           ) {
-            logstream << name << " :: movement detected" << std::endl;
             index.addFS(move);
             moves.set(i, moveAnnotation(name, seq, seq));
 

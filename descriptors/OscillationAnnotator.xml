@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/OscillationAnnotator.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>OscillationAnnotator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>Oscillation Annotator</name>
+    <description>Annotates oscillation data.</description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>MaxTimeVariance</name>
+        <description>Maximum time variance.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>MaxPositionVariance</name>
+        <description>Maximum position variance.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Values for the configuration parameters -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>MaxTimeVariance</name>
+        <value>
+          <float>50</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>MaxPositionVariance</name>
+        <value>
+          <float>0.1</float>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="../types/Movement.xml"/>
+        <import location="../types/DirectionalMovement.xml"/>
+        <import location="../types/Oscillation.xml"/>
+      </imports>
+    </typeSystemDescription>
+  </analysisEngineMetaData>
+</analysisEngineDescription>

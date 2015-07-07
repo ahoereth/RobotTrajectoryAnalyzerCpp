@@ -19,6 +19,9 @@
     <delegateAnalysisEngine key="MovementDirectionAnnotator">
       <import location="MovementDirectionAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="OscillationAnnotator">
+      <import location="OscillationAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -35,6 +38,7 @@
         <node>AccelerationAnnotator</node>
         <node>MovementAnnotator</node>
         <node>MovementDirectionAnnotator</node>
+        <node>OscillationAnnotator</node>
       </fixedFlow>
     </flowConstraints>
   </analysisEngineMetaData>
