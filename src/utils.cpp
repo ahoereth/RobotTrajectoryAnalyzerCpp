@@ -153,4 +153,38 @@ std::string toString(std::size_t x) {
 }
 
 
+/**
+ * Helper routine to check and report errors. Exits the program on error.
+ *
+ * @param errorId An error id which can be used to retrieve more information.
+ * @param engine  The analysis engine in which context the error occured.
+ */
+void checkError(
+  const uima::TyErrorId& errorId,
+  const uima::AnalysisEngine& engine
+) {
+  if (errorId != UIMA_ERR_NONE) {
+    uima::LogFacility& log = engine.getAnnotatorContext().getLogger();
+    log.logError(uima::AnalysisEngine::getErrorIdAsCString(errorId));
+    exit(static_cast<int>(errorId));
+  }
+}
+
+
+/**
+ * Helper routine to check and report errors. Exits the program on error.
+ *
+ * Delegates to the preceding checkError method.
+ *
+ * @param errInfo ErrorInfo object containing a complete error information set.
+ * @param engine  The analysis engine in which context the error occured.
+ */
+void checkError(
+  const uima::ErrorInfo& errInfo,
+  const uima::AnalysisEngine& engine
+) {
+  checkError(errInfo.getErrorId(), engine);
+}
+
+
 }  // namespace utils

@@ -28,5 +28,13 @@ std::string toString(double x);
 std::string toString(float x);
 std::string toString(int x);
 std::string toString(std::size_t x);
+void checkError(
+  const uima::TyErrorId& errorId,
+  const uima::AnalysisEngine& engine
+);
+void checkError(
+  const uima::ErrorInfo& errInfo,
+  const uima::AnalysisEngine& engine
+);
 
 }  // namespace utils

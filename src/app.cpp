@@ -5,40 +5,7 @@
 #include <string>
 #include "uima/api.hpp"
 #include "StdCoutLogger.hpp"
-
-
-/**
- * Helper routine to check and report errors. Exits the program on error.
- *
- * @param errorId An error id which can be used to retrieve more information.
- * @param engine  The analysis engine in which context the error occured.
- */
-void checkError(
-  const uima::TyErrorId& errorId,
-  const uima::AnalysisEngine& engine
-) {
-  if (errorId != UIMA_ERR_NONE) {
-    uima::LogFacility& log = engine.getAnnotatorContext().getLogger();
-    log.logError(uima::AnalysisEngine::getErrorIdAsCString(errorId));
-    exit(static_cast<int>(errorId));
-  }
-}
-
-
-/**
- * Helper routine to check and report errors. Exits the program on error.
- *
- * Delegates to the preceding checkError method.
- *
- * @param errInfo ErrorInfo object containing a complete error information set.
- * @param engine  The analysis engine in which context the error occured.
- */
-void checkError(
-  const uima::ErrorInfo& errInfo,
-  const uima::AnalysisEngine& engine
-) {
-  checkError(errInfo.getErrorId(), engine);
-}
+#include "utils.hpp"
 
 
 /**
@@ -68,7 +35,7 @@ int main(int argc, char* argv[]) {
   // Initialize Analysis Engine.
   uima::AnalysisEngine* engine = uima::Framework::createAnalysisEngine(
     true, "descriptors/Pipeline.xml", errorInfo);
-  checkError(errorInfo, *engine);
+  utils::checkError(errorInfo, *engine);
 
   // Get a new CAS.
   uima::CAS* cas = engine->newCAS();
@@ -83,14 +50,14 @@ int main(int argc, char* argv[]) {
 
   // Process the CAS.
   errorId = engine->process(*cas);
-  checkError(errorId, *engine);
+  utils::checkError(errorId, *engine);
 
   // Call collectionProcessComplete.
   errorId = engine->collectionProcessComplete();
 
   // Free resorces.
   errorId = engine->destroy();
-  checkError(errorId, *engine);
+  utils::checkError(errorId, *engine);
   delete cas;
   delete engine;
   delete stdCoutLogger;
