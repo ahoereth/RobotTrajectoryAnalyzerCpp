@@ -38,7 +38,7 @@ EXE_LFLAGS := -lxerces-c -licuuc -licuio -licui18n -licudata \
 SRCS := $(shell find $(SRCDIR) -maxdepth 1 -type f \
 	 -name *Populator.cpp -o -name *Annotator.cpp)
 LIBS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRCS:.cpp=.so))
-DEPS_SRCS := src/StdCoutLogger.cpp src/utils.cpp
+DEPS_SRCS := src/utils.cpp src/StdCoutLogger.cpp src/AnnotationGateway.cpp
 DEPS_OBJS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(DEPS_SRCS:.cpp=.o))
 EXE := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(EXE_SRC:.cpp=))
 
