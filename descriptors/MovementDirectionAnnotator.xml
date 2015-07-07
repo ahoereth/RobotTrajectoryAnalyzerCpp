@@ -18,7 +18,8 @@
       <imports>
         <import location="../types/JointState.xml"/>
         <import location="../types/Movement.xml"/>
-        <import location="../types/DirectionalMovement.xml"/>
+        <import location="../types/PositiveMovement.xml"/>
+        <import location="../types/NegativeMovement.xml"/>
       </imports>
     </typeSystemDescription>
   </analysisEngineMetaData>
