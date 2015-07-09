@@ -1,6 +1,5 @@
-/**
- * src/MovementDirectionAnnotator.cpp
- */
+//////
+// rta > annotators > MovementDirectionAnnotator.cpp
 
 #include <vector>
 #include <cstdlib>  // size_t

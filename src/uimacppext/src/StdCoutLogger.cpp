@@ -1,6 +1,5 @@
-/**
- * src/StdOutLogger.cpp
- */
+//////
+// rta > uimacppext > StdOutLogger.cpp
 
 #include <string>
 #include <iostream>

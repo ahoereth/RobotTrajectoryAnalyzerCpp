@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>TaskSpacePositionType</name>
+  <description/>
+  <version>1.0</version>
+  <vendor/>
+
+  <types>
+    <typeDescription>
+      <name>TaskSpacePosition</name>
+      <description/>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+
+        <featureDescription>
+          <name>linkName</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+
+        <featureDescription>
+          <name>position</name>
+          <description/>
+          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
+        </featureDescription>
+
+        <featureDescription>
+          <name>rotation</name>
+          <description/>
+          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
+        </featureDescription>
+
+      </features>
+    </typeDescription>
+  </types>
+
+</typeSystemDescription>

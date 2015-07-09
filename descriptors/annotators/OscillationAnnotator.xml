@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  descriptors/OscillationAnnotator.xml
+  descriptors/annotators/OscillationAnnotator.xml
 -->
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>

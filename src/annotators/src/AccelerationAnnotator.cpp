@@ -1,6 +1,5 @@
-/**
- * src/AccelerationAnnotator.cpp
- */
+//////
+// rta > annotators > AccelerationAnnotator.cpp
 
 #include "uima/api.hpp"
 

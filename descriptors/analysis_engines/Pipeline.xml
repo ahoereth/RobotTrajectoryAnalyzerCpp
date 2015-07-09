@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  descriptors/Pipeline.xml
+  descriptors/analysis_engines/Pipeline.xml
 -->
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
@@ -8,19 +8,19 @@
 
   <delegateAnalysisEngineSpecifiers>
     <delegateAnalysisEngine key="JointStatePopulator">
-      <import location="JointStatePopulator.xml"/>
+      <import location="../annotators/JointStatePopulator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="AccelerationAnnotator">
-      <import location="AccelerationAnnotator.xml"/>
+      <import location="../annotators/AccelerationAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MovementAnnotator">
-      <import location="MovementAnnotator.xml"/>
+      <import location="../annotators/MovementAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MovementDirectionAnnotator">
-      <import location="MovementDirectionAnnotator.xml"/>
+      <import location="../annotators/MovementDirectionAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="OscillationAnnotator">
-      <import location="OscillationAnnotator.xml"/>
+      <import location="../annotators/OscillationAnnotator.xml"/>
     </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 

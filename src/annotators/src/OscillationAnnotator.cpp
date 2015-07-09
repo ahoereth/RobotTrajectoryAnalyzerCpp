@@ -1,6 +1,5 @@
-/**
- * src/OscillationAnnotator.cpp
- */
+//////
+// rta > annotators > OscillationAnnotator.cpp
 
 #include <vector>
 #include <cstdlib>  // size_t

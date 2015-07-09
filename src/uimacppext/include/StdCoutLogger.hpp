@@ -1,5 +1,5 @@
 //////
-// src/StdCoutLogger.cpp
+// rta > uimacppext > StdCoutLogger.cpp
 
 #ifndef __STDCOUTLOGGER_INCLUDE__
 #define __STDCOUTLOGGER_INCLUDE__

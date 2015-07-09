@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>PlannedMovementType</name>
+  <description/>
+  <version>1.0</version>
+  <vendor/>
+
+  <types>
+    <typeDescription>
+      <name>PlannedMovement</name>
+      <description/>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+
+        <featureDescription>
+          <name>jointName</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+
+      </features>
+    </typeDescription>
+  </types>
+
+</typeSystemDescription>

@@ -1,6 +1,5 @@
-/**
- * src/JointStatePopulator.cpp
- */
+//////
+// rta > annotators > JointStatePopulator.cpp
 
 #include <string>
 #include <vector>

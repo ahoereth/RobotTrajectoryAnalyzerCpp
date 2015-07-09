@@ -1,6 +1,5 @@
-/**
- * src/MovementAnnotator.cpp
- */
+//////
+// rta > annotators > MovementAnnotator.cpp
 
 #include <vector>
 #include <list>
