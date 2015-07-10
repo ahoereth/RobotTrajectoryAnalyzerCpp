@@ -2,23 +2,35 @@ cmake_minimum_required(VERSION 2.8.3)
 project(uimacppext)
 
 ################################################################################
-## Include sub cmake files                                                    ##  ################################################################################
-include(cmake/uima.cmake)
+## CMake Configuration                                                        ## ################################################################################
+SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 ################################################################################
-## Configure package                                                           ##
+## Dependencies                                                               ##
 ################################################################################
 find_package(catkin REQUIRED)
+find_package(uimacpp REQUIRED)
 
+################################################################################
+## Catkin Configuration                                                       ##
+################################################################################
 catkin_package(
-  INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include
+  INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include ${uimacpp_INCLUDE_DIRS}
 )
 
-include_directories(include)
+################################################################################
+## Includes                                                                   ##
+################################################################################
+include_directories(
+  ${uimacpp_INCLUDE_DIRS}
+  include
+)
 
 ################################################################################
 ## Libraries                                                                  ##
 ################################################################################
-uima_add_library(uimautils src/utils.cpp)
+add_library(uimautils SHARED src/utils.cpp)
+target_link_libraries(uimautils ${uimacpp_LIBRARIES})
 
-uima_add_library(StdCoutLogger src/StdCoutLogger.cpp)
+add_library(StdCoutLogger SHARED src/StdCoutLogger.cpp)
+target_link_libraries(StdCoutLogger ${uimacpp_LIBRARIES})

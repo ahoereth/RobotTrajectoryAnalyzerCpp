@@ -2,60 +2,76 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rta_annotators)
 
 ################################################################################
-## Include sub cmake files                                                    ##  ################################################################################
-include(cmake/uima.cmake)
-include(cmake/mongoclient.cmake)
+## CMake Configuration                                                        ## ################################################################################
+SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 ################################################################################
-## Configure package                                                          ##
+## Dependencies                                                               ##
 ################################################################################
 find_package(catkin REQUIRED)
+find_package(uimacpp REQUIRED)
+find_package(mongoclient REQUIRED)
+find_package(uimacppext REQUIRED)
 
+################################################################################
+## Catkin Configuration                                                       ##
+################################################################################
 catkin_package(
   INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include
 )
 
-include_directories(include)
+################################################################################
+## Includes                                                                   ##
+################################################################################
+include_directories(
+  ${uimacpp_INCLUDE_DIRS}
+  ${mongoclient_INCLUDE_DIRS}
+  ${uimacppext_INCLUDE_DIRS}
+  include
+)
 
 ################################################################################
-## Configure dependencies                                                     ##
+## Macros                                                                     ##
 ################################################################################
-find_package(uimacppext REQUIRED)
-include_directories(${uimacppext_INCLUDE_DIRS})
+macro(add_uima_annotator libname)
+  add_library(${libname} SHARED ${ARGN})
+  target_link_libraries(${libname} ${uimacpp_LIBRARIES})
+  set_target_properties(${libname} PROPERTIES PREFIX "")
+endmacro(add_uima_annotator)
 
 ################################################################################
 ## Annotators                                                                 ##
 ################################################################################
-uima_add_library(JointStatePopulator src/JointStatePopulator.cpp)
+add_uima_annotator(JointStatePopulator src/JointStatePopulator.cpp)
 target_link_libraries(JointStatePopulator
-  ${MongoDB_LIBRARIES}
+  ${mongoclient_LIBRARIES}
   ${Boost_LIBRARIES}
-  uimautils
-)
+  uimautils)
 
-uima_add_library(AccelerationAnnotator src/AccelerationAnnotator.cpp)
+add_uima_annotator(AccelerationAnnotator src/AccelerationAnnotator.cpp)
 target_link_libraries(AccelerationAnnotator uimautils)
 
-uima_add_library(MovementAnnotator src/MovementAnnotator.cpp)
+add_uima_annotator(MovementAnnotator src/MovementAnnotator.cpp)
 target_link_libraries(MovementAnnotator uimautils)
 
-uima_add_library(MovementDirectionAnnotator src/MovementDirectionAnnotator.cpp)
+add_uima_annotator(MovementDirectionAnnotator src/MovementDirectionAnnotator.cpp)
 target_link_libraries(MovementDirectionAnnotator uimautils)
 
-uima_add_library(OscillationAnnotator src/OscillationAnnotator.cpp)
+add_uima_annotator(OscillationAnnotator src/OscillationAnnotator.cpp)
 target_link_libraries(OscillationAnnotator uimautils)
 
 ################################################################################
 ## Libraries                                                                  ##
 ################################################################################
-uima_add_library(AnnotationGateway src/AnnotationGateway.cpp)
+add_library(AnnotationGateway SHARED src/AnnotationGateway.cpp)
 target_link_libraries(AnnotationGateway
+  ${uimacpp_LIBRARIES}
   uimautils
   StdCoutLogger
-)
+  AnnotationIterator)
 
 ################################################################################
 ## Executables                                                                ##
 ################################################################################
-uima_add_executable(demo src/demo.cpp)
-target_link_libraries(demo AnnotationGateway)
+add_executable(demo src/demo.cpp)
+target_link_libraries(demo ${uimacpp_LIBRARIES} AnnotationGateway)

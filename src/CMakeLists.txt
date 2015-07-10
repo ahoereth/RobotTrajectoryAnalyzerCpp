@@ -1,8 +1,15 @@
-# toplevel CMakeLists.txt for a catkin workspace
-# catkin/cmake/toplevel.cmake
-
 cmake_minimum_required(VERSION 2.8.3)
 
+################################################################################
+## Enable all warnings..                                                      ##
+################################################################################
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+# ..but the deprecated and unused variable warnings - because uima.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-unused-but-set-variable")
+
+################################################################################
+## Default catkin toplevel CMakeLists.txt // catkin/cmake/toplevel.cmake      ##
+################################################################################
 set(CATKIN_TOPLEVEL TRUE)
 
 # search for catkin within the workspace
