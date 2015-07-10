@@ -1,12 +1,14 @@
 //////
-// src/AnnotationGateway.hpp
+// rta > annotators > AnnotationGateway.hpp
 
 #ifndef __ANNOTATIONGATEWAY_INCLUDE__
 #define __ANNOTATIONGATEWAY_INCLUDE__
 
 
+#include <string>
 #include "uima/api.hpp"
-#include "AnnotationGateway.hpp"
+#include "unicode/unistr.h"  // UnicodeString
+#include "AnnotationIterator.hpp"
 #include "StdCoutLogger.hpp"
 #include "utils.hpp"
 
@@ -20,14 +22,24 @@ class AnnotationGateway {
  private:
   uima::AnalysisEngine* engine;
   uima::CAS* cas;
+  const uima::TypeSystem* typeSystem;
+//  uima::AnnotatorContext* annotatorContext;
+//  const uima::AnalysisEngineDescription* aeDescription;
   StdCoutLogger* stdCoutLogger;
   uima::FileLogger* fileLogger;
+
+  uima::TyErrorId errorId;
+  uima::ErrorInfo errorInfo;
 
 
  public:
   AnnotationGateway(void);
   ~AnnotationGateway(void);
+  void initAE();
   void run();
+  uima::Type getType(const icu::UnicodeString& typeName);
+  AnnotationIterator getAnnotationIterator(
+    const icu::UnicodeString& typeName);
 };
 
 
