@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <sstream>
 #include "unicode/unistr.h"  // UnicodeString"
 #include "ros/ros.h"
 #include "std_msgs/MultiArrayLayout.h"
@@ -23,21 +24,51 @@ int main(int argc, char* argv[]) {
   ros::Publisher pub = node.advertise<std_msgs::Float64MultiArray>(topic, 1000);
   ros::Rate rate(100);
 
-  // Handle -loop flag
-  bool loop = (1 < argc && 0 == std::strcmp(argv[1], "-loop"));
+  // Handle command line arguments
+  bool loop = false;
+  std::vector<std::string> joints;
+  for (int i = 1; i < argc; i++) {
+    // -loop flag
+    if (0 == std::strcmp(argv[i], "-loop")) {
+      loop = true;
+    }
+
+    // joints list
+    if (0 == std::strncmp(argv[i], "joints=", 7)) {
+      std::string joint, arg = argv[i];
+      std::istringstream ss(arg.substr(7));
+      while (std::getline(ss, joint, ',')) {
+        joints.push_back(joint);
+      }
+    }
+  }
 
   // Initalize and run annotators
   AnnotationGateway gateway = AnnotationGateway();
   gateway.run();
+
+  // Get required iterators.
   AnnotationIterator accIter = gateway.getAnnotationIterator("Acceleration");
+  AnnotationIterator jsIter = gateway.getAnnotationIterator("JointState");
+  std::vector<std::string> jointnames = jsIter.getStringVector("name");
+
+  // Get the indices of the requested joints - if any.
+  std::vector<int> indices;
+  for (int i = 0, size = joints.size(); i < size; i++) {
+    int index = utils::indexOf(jointnames, joints[i]);
+    if (index > -1) {
+      indices.push_back(index);
+    }
+  }
 
   // Initalize message with its layout.
   std_msgs::Float64MultiArray msg;
   std_msgs::MultiArrayLayout layout = std_msgs::MultiArrayLayout();
   std::vector<std_msgs::MultiArrayDimension> dimensions(1);
-  dimensions[0].label = "accelerations";
-  dimensions[0].size = accIter.getDoubleVector("value").size();
+  dimensions[0].label = "accelerations";  // Maybe list the joint names here?
   dimensions[0].stride = 1;
+  dimensions[0].size = indices.size() == 0 ?
+    accIter.getDoubleVector("value").size() : indices.size();
   layout.dim = dimensions;
   msg.layout = layout;
 
@@ -48,10 +79,19 @@ int main(int argc, char* argv[]) {
     }
 
     msg.data.clear();
-    msg.data = accIter.getDoubleVector("value");
+    if (indices.size() == 0) {  // All joints!
+      msg.data = accIter.getDoubleVector("value");
+    } else {  // Just specific joints.
+      std::vector<double> values = accIter.getDoubleVector("value");
+      for (int i = 0, size = indices.size(); i < size; i++) {
+        msg.data.push_back(values[indices[i]]);
+      }
+    }
+
     pub.publish(msg);
 
     accIter.moveToNext();
+    jsIter.moveToNext();
     ros::spinOnce();
     rate.sleep();
   }

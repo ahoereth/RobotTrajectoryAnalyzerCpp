@@ -25,7 +25,9 @@ std::vector<uima::AnnotationFS> selectCovered(
   const uima::AnnotationFS& fs
 );
 std::vector<double> arrFStoVec(const uima::DoubleArrayFS& fs);
+std::vector<std::string> arrFStoVec(const uima::StringArrayFS& fs);
 double calculateVariance(const std::vector<double>& vec);
+int indexOf(const std::vector<std::string>& vec, const std::string& val);
 icu::UnicodeString sToUs(const std::string& str);
 std::string toString(double x);
 std::string toString(float x);

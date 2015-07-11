@@ -71,6 +71,26 @@ std::vector<double> arrFStoVec(
 
 
 /**
+ * Convert a array feature structure to a vector.
+ *
+ * @param  fs Array feature structure to convert.
+ * @return Resulting vector.
+ */
+std::vector<std::string> arrFStoVec(
+  const uima::StringArrayFS& fs
+) {
+  std::size_t size = fs.size();
+  std::vector<std::string> result(size, "");
+
+  for (std::size_t i = 0; i < size; i++) {
+    fs.get(i).extractUTF8(result[i]);
+  }
+
+  return result;
+}
+
+
+/**
  * Calculate the variance in the values of a vector.
  *
  * @param  vec Vector of double values.
@@ -92,6 +112,29 @@ double calculateVariance(
   }
 
   return variance;
+}
+
+
+/**
+ * Get the index of a specific value in a vector.
+ *
+ * @param  vec Vector which is expected to contain the value.
+ * @param  val Value to search for.
+ * @return Index of `val` in `vec` or `-1` if not found.
+ */
+int indexOf(
+  const std::vector<std::string>& vec,
+  const std::string& val
+) {
+  int index = -1;
+  for (int i = 0, size = vec.size(); i < size; ++i) {
+    if (vec[i] == val) {
+      index = i;
+      break;
+    }
+  }
+
+  return index;
 }
 
 

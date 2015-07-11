@@ -5,6 +5,7 @@
 #define __AnnotationIterator_INCLUDE__
 
 
+#include <string>
 #include <vector>
 #include "uima/api.hpp"
 #include "unicode/unistr.h"  // UnicodeString
@@ -23,8 +24,9 @@ class AnnotationIterator {
   explicit AnnotationIterator(const uima::ANIterator& iterator,
                               const uima::Type& type);
   ~AnnotationIterator(void) {}
-  uima::AnnotationFS pop();
   std::vector<double> getDoubleVector(
+    const icu::UnicodeString& featureName);
+  std::vector<std::string> getStringVector(
     const icu::UnicodeString& featureName);
   bool isValid();
   void moveToNext();
