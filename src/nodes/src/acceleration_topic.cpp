@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Choose (all): ";
     std::getline(std::cin, choice);
     std::cout << "-----------------------------------------------" << std::endl;
-    indices = utils::sToI(utils::split(choice, ',', true));
+    indices = utils::toInt(utils::split(choice, ','));
   }
 
   // Initalize message with its layout.

@@ -38,7 +38,7 @@ class JointStatePopulator : public Annotator {
     uima::StringArrayFS fs = currentCas->createStringArrayFS(vec.size());
 
     for (std::size_t i = 0; i < vec.size(); ++i) {
-      fs.set(i, utils::sToUs(vec[i].String()));
+      fs.set(i, utils::toUS(vec[i].String()));
     }
 
     return fs;
@@ -202,7 +202,7 @@ class JointStatePopulator : public Annotator {
       js.setIntValue(seqFtr, seq);
       js.setIntValue(seqFtr, header.getIntField("seq"));
       js.setIntValue(timeFtr, header.getField("stamp").Date().asInt64());
-      js.setStringValue(frameFtr, utils::sToUs(obj.getField("frame_id")));
+      js.setStringValue(frameFtr, utils::toUS(obj.getField("frame_id")));
       js.setFSValue(nameFtr, fieldToStringArrayFS(obj.getField("name")));
       jtp.setFSValue(posFtr, fieldToDoubleArrayFS(obj.getField("position")));
       jtp.setFSValue(effFtr, fieldToDoubleArrayFS(obj.getField("effort")));

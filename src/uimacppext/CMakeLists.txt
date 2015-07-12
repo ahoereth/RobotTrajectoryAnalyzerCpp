@@ -29,7 +29,7 @@ include_directories(
 ################################################################################
 ## Libraries                                                                  ##
 ################################################################################
-add_library(uimautils SHARED src/utils.cpp)
+add_library(uimautils SHARED src/utils.cpp src/uimautils.cpp)
 target_link_libraries(uimautils ${uimacpp_LIBRARIES})
 
 add_library(StdCoutLogger SHARED src/StdCoutLogger.cpp)

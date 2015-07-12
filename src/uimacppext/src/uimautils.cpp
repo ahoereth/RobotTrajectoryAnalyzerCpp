@@ -1,0 +1,125 @@
+//////
+// rta > uimacppext > uimautils.cpp
+
+
+#include <string>
+#include <vector>
+#include <cstdlib>  // size_t
+#include "unicode/unistr.h"  // UnicodeString
+#include "uima/api.hpp"
+#include "utils.hpp"
+
+
+namespace utils {
+
+
+/**
+ * Convert a array feature structure to a vector.
+ *
+ * @param  fs Array feature structure to convert.
+ * @return Resulting vector.
+ */
+std::vector<double> arrFStoVec(
+  const uima::DoubleArrayFS& fs
+) {
+  std::size_t size = fs.size();
+  std::vector<double> result(size, 0);
+
+  for (std::size_t i = 0; i < size; i++) {
+    result[i] = fs.get(i);
+  }
+
+  return result;
+}
+
+
+/**
+ * Convert a array feature structure to a vector.
+ *
+ * @param  fs Array feature structure to convert.
+ * @return Resulting vector.
+ */
+std::vector<std::string> arrFStoVec(
+  const uima::StringArrayFS& fs
+) {
+  std::size_t size = fs.size();
+  std::vector<std::string> result(size, "");
+
+  for (std::size_t i = 0; i < size; i++) {
+    fs.get(i).extractUTF8(result[i]);
+  }
+
+  return result;
+}
+
+
+/**
+ * Get a vector of annotations from the given annotation index constrained by a
+ * 'covering' annotation. Iterates over all annotations in the given index to
+ * find the covered annotations. Covered means contained by the given
+ * annoation's begin and end positions.
+ *
+ * @see uimaj's org.apache.uima.fit.util.JCasUtil
+ * @param  index Annotation index containing the annotations to iterate over.
+ * @param  fs    Annotation FS for constraining the annotations from `index`.
+ * @return Vector containing all annotations from `index` covered by the given
+ *         annotation feature structure.
+ */
+std::vector<uima::AnnotationFS> selectCovered(
+  const uima::ANIndex& index,
+  const uima::AnnotationFS& fs
+) {
+  std::vector<uima::AnnotationFS> result;
+  uima::AnnotationFS item;
+  std::size_t begin = fs.getBeginPosition();
+  std::size_t end = fs.getEndPosition();
+
+  uima::ANIterator iter = index.iterator();
+  while (iter.isValid()) {
+    item = iter.get();
+    iter.moveToNext();
+
+    if (item.getBeginPosition() >= begin && item.getEndPosition() <= end) {
+      result.push_back(item);
+    }
+  }
+
+  return result;
+}
+
+
+/**
+ * Helper routine to check and report errors. Exits the program on error.
+ *
+ * @param errorId An error id which can be used to retrieve more information.
+ * @param engine  The analysis engine in which context the error occured.
+ */
+void checkError(
+  const uima::TyErrorId& errorId,
+  const uima::AnalysisEngine& engine
+) {
+  if (errorId != UIMA_ERR_NONE) {
+    uima::LogFacility& log = engine.getAnnotatorContext().getLogger();
+    log.logError(uima::AnalysisEngine::getErrorIdAsCString(errorId));
+    exit(static_cast<int>(errorId));
+  }
+}
+
+
+/**
+ * Helper routine to check and report errors. Exits the program on error.
+ *
+ * Delegates to the preceding checkError method.
+ *
+ * @param errInfo ErrorInfo object containing a complete error information set.
+ * @param engine  The analysis engine in which context the error occured.
+ */
+void checkError(
+  const uima::ErrorInfo& errInfo,
+  const uima::AnalysisEngine& engine
+) {
+  checkError(errInfo.getErrorId(), engine);
+}
+
+
+}  // namespace utils
