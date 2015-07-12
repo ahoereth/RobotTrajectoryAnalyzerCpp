@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 #include <cstring>
-#include <sstream>
+#include <iomanip>
+#include <iostream>
 #include "unicode/unistr.h"  // UnicodeString"
 #include "ros/ros.h"
 #include "std_msgs/MultiArrayLayout.h"
@@ -35,11 +36,8 @@ int main(int argc, char* argv[]) {
 
     // joints list
     if (0 == std::strncmp(argv[i], "joints=", 7)) {
-      std::string joint, arg = argv[i];
-      std::istringstream ss(arg.substr(7));
-      while (std::getline(ss, joint, ',')) {
-        joints.push_back(joint);
-      }
+      std::string arg = argv[i];
+      joints = utils::split(arg.substr(7), ',');
     }
   }
 
@@ -51,14 +49,31 @@ int main(int argc, char* argv[]) {
   AnnotationIterator accIter = gateway.getAnnotationIterator("Acceleration");
   AnnotationIterator jsIter = gateway.getAnnotationIterator("JointState");
   std::vector<std::string> jointnames = jsIter.getStringVector("name");
-
-  // Get the indices of the requested joints - if any.
   std::vector<int> indices;
-  for (int i = 0, size = joints.size(); i < size; i++) {
-    int index = utils::indexOf(jointnames, joints[i]);
-    if (index > -1) {
-      indices.push_back(index);
+
+  // Handle just specific joint names if requested.
+  if (joints.size() > 0) {  // Some joint names were passed as CL argument.
+    // Get the indices of the requested joints - if any.
+    for (int i = 0, size = joints.size(); i < size; i++) {
+      int index = utils::indexOf(jointnames, joints[i]);
+      if (index > -1) {
+        indices.push_back(index);
+      }
     }
+  } else {  // Give the option to choose from a list of joint names.
+    std::cout << "-----------------------------------------------" << std::endl;
+    for (int i = 0, size = jointnames.size(); i < size; i++) {
+      std::cout << std::left << std::setw(4) << utils::toString(i) + ") "
+                             << std::setw(36) << jointnames[i];
+      if (i%2 == 1) { std::cout << std::endl; }
+    }
+    std::cout << std::endl;
+
+    std::string choice;
+    std::cout << "Choose (all): ";
+    std::getline(std::cin, choice);
+    std::cout << "-----------------------------------------------" << std::endl;
+    indices = utils::sToI(utils::split(choice, ',', true));
   }
 
   // Initalize message with its layout.

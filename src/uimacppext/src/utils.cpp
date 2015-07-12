@@ -4,7 +4,7 @@
 
 #include <string>
 #include <vector>
-#include <sstream>  // ostringstream
+#include <sstream>  // ostringstream, istringstream
 #include <cstdlib>  // size_t
 #include <cmath>  // pow
 #include "unicode/unistr.h"  // UnicodeString
@@ -135,6 +135,58 @@ int indexOf(
   }
 
   return index;
+}
+
+
+/**
+ * Split a given source string on a specific delimiter into a vector of
+ * substrings.
+ *
+ * @param  src The source string.
+ * @param  del The delimiter to split `src` at.
+ * @return Result vector of `src` substrings.
+ */
+std::vector<std::string> split(
+  const std::string& src,
+  char del,
+  bool asInt
+) {
+  std::vector<std::string> dst;
+  std::string str;
+  std::istringstream ss(src);
+  while (std::getline(ss, str, del)) {
+    dst.push_back(str);
+  }
+
+  return dst;
+}
+
+
+/**
+ * Basic type conversion.
+ *
+ * @param  str Input string.
+ * @return Output integer.
+ */
+int sToI(const std::string& str) {
+  int num;
+  std::istringstream(str) >> num;
+  return num;
+}
+
+
+/**
+ * Type conversion for vector elements.
+ *
+ * @param  vec Input vector of string values.
+ * @return Resulting vector of integer values.
+ */
+std::vector<int> sToI(const std::vector<std::string>& vec) {
+  std::vector<int> result(vec.size(), 0);
+  for (int i = 0, size = vec.size(); i < size; i++) {
+    result[i] = sToI(vec[i]);
+  }
+  return result;
 }
 
 

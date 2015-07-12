@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-#include <sstream>  // ostringstream
+#include <sstream>  // ostringstream, istringstream
 #include <cstdlib>  // size_t
 #include <cmath>  // pow
 #include "unicode/unistr.h"  // UnicodeString
@@ -28,6 +28,13 @@ std::vector<double> arrFStoVec(const uima::DoubleArrayFS& fs);
 std::vector<std::string> arrFStoVec(const uima::StringArrayFS& fs);
 double calculateVariance(const std::vector<double>& vec);
 int indexOf(const std::vector<std::string>& vec, const std::string& val);
+std::vector<std::string> split(
+  const std::string& src,
+  char delimiter,
+  bool asInt = false
+);
+int sToI(const std::string& str);
+std::vector<int> sToI(const std::vector<std::string>& vec);
 icu::UnicodeString sToUs(const std::string& str);
 std::string toString(double x);
 std::string toString(float x);
