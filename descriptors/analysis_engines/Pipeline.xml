@@ -29,9 +29,55 @@
     <description></description>
     <version>1.0</version>
     <vendor/>
-    <configurationParameters/>
-    <configurationParameterSettings/>
 
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>Host</name>
+        <type>String</type>
+        <overrides>
+          <parameter>JointStatePopulator/Host</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Database</name>
+        <type>String</type>
+        <overrides>
+          <parameter>JointStatePopulator/Host</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Collection</name>
+        <type>String</type>
+        <overrides>
+          <parameter>JointStatePopulator/Host</parameter>
+        </overrides>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Configuration Parameter Values -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>Host</name>
+        <value>
+          <string>localhost</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Database</name>
+        <value>
+          <string>dummy1</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Collection</name>
+        <value>
+          <string>joint_states</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!-- Pipeline flow constraints -->
     <flowConstraints>
       <fixedFlow>
         <node>JointStatePopulator</node>
@@ -41,5 +87,6 @@
         <node>OscillationAnnotator</node>
       </fixedFlow>
     </flowConstraints>
+
   </analysisEngineMetaData>
 </analysisEngineDescription>

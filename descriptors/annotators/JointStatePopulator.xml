@@ -38,7 +38,7 @@
       </configurationParameter>
     </configurationParameters>
 
-    <!-- Configuration Parameter Values -->
+    <!-- Configuration Parameter Values - might be overwritten by AE -->
     <configurationParameterSettings>
       <nameValuePair>
         <name>Host</name>
