@@ -66,5 +66,16 @@
         <import location="../types/JointState.xml"/>
       </imports>
     </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs/>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+        </outputs>
+      </capability>
+    </capabilities>
   </analysisEngineMetaData>
 </analysisEngineDescription>

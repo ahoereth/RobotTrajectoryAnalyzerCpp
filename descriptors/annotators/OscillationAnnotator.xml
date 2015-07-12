@@ -55,5 +55,19 @@
         <import location="../types/Oscillation.xml"/>
       </imports>
     </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">Movement</type>
+          <type allAnnotatorFeatures="true">PositiveMovement</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">Oscillation</type>
+        </outputs>
+      </capability>
+    </capabilities>
   </analysisEngineMetaData>
 </analysisEngineDescription>

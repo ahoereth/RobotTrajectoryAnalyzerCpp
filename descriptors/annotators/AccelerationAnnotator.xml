@@ -20,5 +20,18 @@
         <import location="../types/Acceleration.xml"/>
       </imports>
     </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">Acceleration</type>
+        </outputs>
+      </capability>
+    </capabilities>
   </analysisEngineMetaData>
 </analysisEngineDescription>

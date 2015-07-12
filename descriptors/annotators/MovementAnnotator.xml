@@ -54,5 +54,18 @@
         <import location="../types/Movement.xml"/>
       </imports>
     </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">Movement</type>
+        </outputs>
+      </capability>
+    </capabilities>
   </analysisEngineMetaData>
 </analysisEngineDescription>

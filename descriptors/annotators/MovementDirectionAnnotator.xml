@@ -22,5 +22,20 @@
         <import location="../types/NegativeMovement.xml"/>
       </imports>
     </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+          <type allAnnotatorFeatures="true">Movement</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">PositiveMovement</type>
+          <type allAnnotatorFeatures="true">NegativeMovement</type>
+        </outputs>
+      </capability>
+    </capabilities>
   </analysisEngineMetaData>
 </analysisEngineDescription>
