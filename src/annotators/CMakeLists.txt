@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rta_annotators)
 
 ################################################################################
-## CMake Configuration                                                        ## ################################################################################
+## CMake Configuration                                                        ##
+################################################################################
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 ################################################################################
@@ -59,6 +60,12 @@ target_link_libraries(MovementDirectionAnnotator uimautils)
 
 add_uima_annotator(OscillationAnnotator src/OscillationAnnotator.cpp)
 target_link_libraries(OscillationAnnotator uimautils)
+
+add_uima_annotator(ControllerAnnotator src/ControllerAnnotator.cpp)
+target_link_libraries(ControllerAnnotator
+#  ${mongoclient_LIBRARIES}
+#  ${Boost_LIBRARIES}
+  uimautils)
 
 ################################################################################
 ## Libraries                                                                  ##

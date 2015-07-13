@@ -15,7 +15,8 @@
         <featureDescription>
           <name>time</name>
           <description/>
-          <rangeTypeName>uima.cas.Double</rangeTypeName>
+          <!-- Same type as time from joint state. -->
+          <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
 
         <featureDescription>
@@ -51,5 +52,10 @@
       </features>
     </typeDescription>
   </types>
+
+  <!-- Dependencies -->
+  <imports>
+    <import location="JointTrajectoryPoint.xml"/>
+  </imports>
 
 </typeSystemDescription>

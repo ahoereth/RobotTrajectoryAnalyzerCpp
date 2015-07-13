@@ -30,10 +30,13 @@ class JointStatePopulator : public Annotator {
   /**
    * Convert a mongo BSON element to a UIMA CAS Double Array Feature Structure.
    *
+   * TODO: Make this an external utility function.
+   *
+   * @see    JointStatePopulator::toStringArrayFS
    * @param  field Element containing an array of elements with string values.
    * @return Returns a string array feature structure.
    */
-  uima::StringArrayFS fieldToStringArrayFS(const mongo::BSONElement& field) {
+  uima::StringArrayFS toStringArrayFS(const mongo::BSONElement& field) {
     std::vector<mongo::BSONElement> vec = field.Array();
     uima::StringArrayFS fs = currentCas->createStringArrayFS(vec.size());
 
@@ -48,10 +51,13 @@ class JointStatePopulator : public Annotator {
   /**
    * Convert a mongo BSON element to a UIMA CAS String Array Feature Structure.
    *
+   * TODO: Make this an external utility function.
+   *
+   * @see    JointStatePopulator::toDoubleArrayFS
    * @param  field Element containing an array of elements with double values.
    * @return Returns a double array feature structure.
    */
-  uima::DoubleArrayFS fieldToDoubleArrayFS(const mongo::BSONElement& field) {
+  uima::DoubleArrayFS toDoubleArrayFS(const mongo::BSONElement& field) {
     std::vector<mongo::BSONElement> vec = field.Array();
     uima::DoubleArrayFS fs = currentCas->createDoubleArrayFS(vec.size());
 
@@ -203,10 +209,10 @@ class JointStatePopulator : public Annotator {
       js.setIntValue(seqFtr, header.getIntField("seq"));
       js.setIntValue(timeFtr, header.getField("stamp").Date().asInt64());
       js.setStringValue(frameFtr, utils::toUS(obj.getField("frame_id")));
-      js.setFSValue(nameFtr, fieldToStringArrayFS(obj.getField("name")));
-      jtp.setFSValue(posFtr, fieldToDoubleArrayFS(obj.getField("position")));
-      jtp.setFSValue(effFtr, fieldToDoubleArrayFS(obj.getField("effort")));
-      jtp.setFSValue(velFtr, fieldToDoubleArrayFS(obj.getField("velocity")));
+      js.setFSValue(nameFtr, toStringArrayFS(obj.getField("name")));
+      jtp.setFSValue(posFtr, toDoubleArrayFS(obj.getField("position")));
+      jtp.setFSValue(effFtr, toDoubleArrayFS(obj.getField("effort")));
+      jtp.setFSValue(velFtr, toDoubleArrayFS(obj.getField("velocity")));
 
       index.addFS(js);
     }

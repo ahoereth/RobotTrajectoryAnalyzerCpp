@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  descriptors/annotators/JointStatePopulator.xml
+  descriptors/annotators/ControllerAnnotator.xml
 -->
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
   <primitive>true</primitive>
-  <annotatorImplementationName>JointStatePopulator</annotatorImplementationName>
+  <annotatorImplementationName>ControllerAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Joint State Populator</name>
-    <description>Populates the CAS with joint state data.</description>
+    <name>Controller Annotator</name>
+    <description>Annotates controller inputs.</description>
     <version>1.0</version>
-    <vendor>ahoereth</vendor>
+    <vendor/>
 
     <!-- Configuration Parameter Definitions -->
     <configurationParameters>
@@ -30,10 +30,10 @@
         <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-        <name>Collection</name>
-        <description>Mongo collection name.</description>
+        <name>Collections</name>
+        <description>Mongo collection names.</description>
         <type>String</type>
-        <multiValued>false</multiValued>
+        <multiValued>true</multiValued>
         <mandatory>true</mandatory>
       </configurationParameter>
     </configurationParameters>
@@ -55,27 +55,33 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>Collection</name>
+        <name>Collections</name>
         <value>
-          <string>joint_states</string>
+          <array>
+            <string>r_arm_controller_state</string>
+            <string>l_arm_controller_state</string>
+          </array>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
 
-    <!-- Type System Defenitions -->
+    <!-- TypeSystem Definition -->
     <typeSystemDescription>
       <imports>
         <import location="../types/JointState.xml"/>
+        <import location="../types/ControllerInput.xml"/>
       </imports>
     </typeSystemDescription>
 
     <!-- Annotator Capabilities -->
     <capabilities>
       <capability>
-        <inputs/>
+        <inputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+        </inputs>
 
         <outputs>
-          <type allAnnotatorFeatures="true">JointState</type>
+          <type allAnnotatorFeatures="true">ControllerInput</type>
         </outputs>
       </capability>
     </capabilities>

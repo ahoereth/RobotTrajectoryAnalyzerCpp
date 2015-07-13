@@ -89,6 +89,21 @@ std::string toString(std::size_t x) {
 
 
 /**
+ * Unicode string to standard string conversion.
+ *
+ * @param  us Unicode source string
+ * @return The resulting string.
+ */
+std::string toString(const icu::UnicodeString& us) {
+  char* cs = new char;
+  us.extract(0, us.length(), cs);
+  std::string str(cs);
+  delete cs;
+  return str;
+}
+
+
+/**
  * Convert a C++ standard string to a ICU Unicode String as required by many
  * UIMA applications.
  *
@@ -117,6 +132,26 @@ std::vector<std::string> split(const std::string& src, char del) {
   }
 
   return dst;
+}
+
+
+/**
+ * Concatenates a given source vector's elements into a single string with
+ * `sep` as seperator between each value.
+ *
+ * @param  vec The source vector.
+ * @param  del The seperator to insert inbetween the vector's values.
+ * @return Result string of concatenated `src` values.
+ */
+std::string join(const std::vector<std::string>& vec, const std::string& sep) {
+  std::string str = "";
+  for (size_t i = 0, size = vec.size(); i < size; i++) {
+    str += vec[i];
+    if (1+i < size) {
+      str += sep;
+    }
+  }
+  return str;
 }
 
 

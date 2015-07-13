@@ -25,7 +25,6 @@
         </featureDescription>
 
         <featureDescription>
-          <!-- unused? -->
           <name>accelerations</name>
           <description/>
           <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>

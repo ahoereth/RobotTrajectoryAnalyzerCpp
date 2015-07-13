@@ -22,6 +22,9 @@
     <delegateAnalysisEngine key="OscillationAnnotator">
       <import location="../annotators/OscillationAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="ControllerAnnotator">
+      <import location="../annotators/ControllerAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -37,20 +40,15 @@
         <type>String</type>
         <overrides>
           <parameter>JointStatePopulator/Host</parameter>
+          <parameter>ControllerAnnotator/Host</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
         <name>Database</name>
         <type>String</type>
         <overrides>
-          <parameter>JointStatePopulator/Host</parameter>
-        </overrides>
-      </configurationParameter>
-      <configurationParameter>
-        <name>Collection</name>
-        <type>String</type>
-        <overrides>
-          <parameter>JointStatePopulator/Host</parameter>
+          <parameter>JointStatePopulator/Database</parameter>
+          <parameter>ControllerAnnotator/Database</parameter>
         </overrides>
       </configurationParameter>
     </configurationParameters>
@@ -69,12 +67,6 @@
           <string>dummy1</string>
         </value>
       </nameValuePair>
-      <nameValuePair>
-        <name>Collection</name>
-        <value>
-          <string>joint_states</string>
-        </value>
-      </nameValuePair>
     </configurationParameterSettings>
 
     <!-- Pipeline flow constraints -->
@@ -85,6 +77,7 @@
         <node>MovementAnnotator</node>
         <node>MovementDirectionAnnotator</node>
         <node>OscillationAnnotator</node>
+        <node>ControllerAnnotator</node>
       </fixedFlow>
     </flowConstraints>
 
