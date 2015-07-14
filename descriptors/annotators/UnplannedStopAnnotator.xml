@@ -1,37 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  descriptors/annotators/ControllerAnnotator.xml
+  descriptors/annotators/UnplannedStopAnnotator.xml
 -->
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
   <primitive>true</primitive>
-  <annotatorImplementationName>ControllerAnnotator</annotatorImplementationName>
+  <annotatorImplementationName>UnplannedStopAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Controller Annotator</name>
-    <description>Annotates controller inputs.</description>
+    <name>Unplanned Stop Annotator</name>
+    <description>Annotates unplanned robot movement stops.</description>
     <version>1.0</version>
     <vendor/>
 
     <!-- Configuration Parameter Definitions -->
     <configurationParameters>
       <configurationParameter>
-        <name>Host</name>
-        <description>Mongo DB Host URL.</description>
-        <type>String</type>
-        <multiValued>false</multiValued>
-        <mandatory>true</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>Database</name>
-        <description>Mongo Database name.</description>
-        <type>String</type>
+        <name>Threshold</name>
+        <description>Threshold for the error overlap.</description>
+        <type>Integer</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
         <name>Controllers</name>
-        <description>Robot controller names which are also equivalent to mongo db collection names.</description>
+        <description>List of controller names to annotate.</description>
         <type>String</type>
         <multiValued>true</multiValued>
         <mandatory>true</mandatory>
@@ -41,17 +34,9 @@
     <!-- Configuration Parameter Values -->
     <configurationParameterSettings>
       <nameValuePair>
-        <name>Host</name>
+        <name>Threshold</name>
         <value>
-          <!-- AE might overwrite this -->
-          <string>localhost</string>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>Database</name>
-        <value>
-          <!-- AE might overwrite this -->
-          <string>dummy1</string>
+          <integer>15</integer>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -68,8 +53,9 @@
     <!-- TypeSystem Definition -->
     <typeSystemDescription>
       <imports>
-        <import location="../types/JointState.xml"/>
-        <import location="../types/ControllerInput.xml"/>
+        <import location="../types/ControllerError.xml"/>
+        <import location="../types/PlannedMovement.xml"/>
+        <import location="../types/UnplannedStop.xml"/>
       </imports>
     </typeSystemDescription>
 
@@ -77,11 +63,12 @@
     <capabilities>
       <capability>
         <inputs>
-          <type allAnnotatorFeatures="true">JointState</type>
+          <type allAnnotatorFeatures="true">ControllerError</type>
+          <type allAnnotatorFeatures="true">PlannedMovement</type>
         </inputs>
 
         <outputs>
-          <type allAnnotatorFeatures="true">ControllerInput</type>
+          <type allAnnotatorFeatures="true">UnplannedStop</type>
         </outputs>
       </capability>
     </capabilities>

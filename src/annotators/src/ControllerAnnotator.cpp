@@ -37,7 +37,7 @@ class ControllerAnnotator : public Annotator {
   // Configuration Parameters
   std::string host;
   std::string database;
-  std::vector<std::string> collections;
+  std::vector<std::string> controllers;
 
   mongo::DBClientConnection conn;
 
@@ -133,17 +133,17 @@ class ControllerAnnotator : public Annotator {
       annotatorContext.extractValue("Database", database);
     }
 
-    if (annotatorContext.isParameterDefined("Collections")) {
-      std::vector<icu::UnicodeString> tmpCollections;
-      annotatorContext.extractValue("Collections", tmpCollections);
-      collections = utils::toString(tmpCollections);
+    if (annotatorContext.isParameterDefined("Controllers")) {
+      std::vector<icu::UnicodeString> tmpControllers;
+      annotatorContext.extractValue("Controllers", tmpControllers);
+      controllers = utils::toString(tmpControllers);
     } else {
-      collections.push_back("r_arm_controller_state");
-      collections.push_back("l_arm_controller_state");
+      controllers.push_back("r_arm_controller_state");
+      controllers.push_back("l_arm_controller_state");
     }
 
     log->logMessage("Host: " + host + ", Database: " + database + ", "
-      "Collections: " + utils::join(collections, ", "));
+      "Controllers: " + utils::join(controllers, ", "));
 
     try {
       conn.connect(host);
@@ -220,18 +220,19 @@ class ControllerAnnotator : public Annotator {
 
 
   /**
-   * Simillar to the annotator's `process` function but trimmed to just
-   * handle a specific joint's collection given by the `collection` param.
+   * Similar to the annotator's `process` function but trimmed to just
+   * handle a specific controller.
    *
    * @param  cas        The current common analysis system.
-   * @param  collection Mongo DB collection containing the joint information.
+   * @param  controller The controller name which is also equivalent to the
+   *                    mongo db collection's name.
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
-  uima::TyErrorId processCollection(
+  uima::TyErrorId processController(
     uima::CAS& cas,
-    const std::string& collection
+    const std::string& controller
   ) {
-    log->logMessage("ControllerAnnotator::processCollection() begins");
+    log->logMessage("ControllerAnnotator::processController() begins");
 
     // Initialize required indices.
     uima::FSIndexRepository& index = cas.getIndexRepository();
@@ -243,7 +244,7 @@ class ControllerAnnotator : public Annotator {
 
     // Query MongoDB and parse result cursor.
     std::auto_ptr<mongo::DBClientCursor> cursor =
-      conn.query(database + "." + collection, mongo::BSONObj());
+      conn.query(database + "." + controller, mongo::BSONObj());
 
     while (cursor->more()) {
       mongo::BSONObj obj = cursor->next();
@@ -262,7 +263,7 @@ class ControllerAnnotator : public Annotator {
       }
 
       ci = cas.createAnnotation(ControllerInput, begin, end);
-      ci.setStringValue(ciTypeFtr, utils::toUS(collection));
+      ci.setStringValue(ciTypeFtr, utils::toUS(controller));
       ci.setIntValue(ciTimeFtr, stamp);
       ci.setFSValue(ciJnsFtr, toStringArrayFS(obj.getField("joint_names")));
       ci.setFSValue(ciDesFtr, readJtp(obj.getField("desired").Obj()));
@@ -272,7 +273,7 @@ class ControllerAnnotator : public Annotator {
       index.addFS(ci);
     }
 
-    log->logMessage("ControllerAnnotator::processCollection() ends");
+    log->logMessage("ControllerAnnotator::processController() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -295,8 +296,8 @@ class ControllerAnnotator : public Annotator {
     currentCas = &cas;
 
     uima::TyErrorId errorId = UIMA_ERR_NONE;
-    for (int i = 0, size = collections.size(); i < size; i++) {
-      errorId = processCollection(cas,  collections[i]);
+    for (int i = 0, size = controllers.size(); i < size; i++) {
+      errorId = processController(cas,  controllers[i]);
       if (UIMA_ERR_NONE != errorId) {
         break;
       }

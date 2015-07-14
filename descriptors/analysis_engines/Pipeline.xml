@@ -31,6 +31,9 @@
     <delegateAnalysisEngine key="PlannedMovementAnnotator">
       <import location="../annotators/PlannedMovementAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="UnplannedStopAnnotator">
+      <import location="../annotators/UnplannedStopAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -86,6 +89,7 @@
         <node>ControllerAnnotator</node>
         <node>ErrorAnnotator</node>
         <node>PlannedMovementAnnotator</node>
+        <node>UnplannedStopAnnotator</node>
       </fixedFlow>
     </flowConstraints>
 
