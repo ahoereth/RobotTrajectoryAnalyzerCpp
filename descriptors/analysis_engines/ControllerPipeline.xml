@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/analysis_engines/ControllerPipeline.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>false</primitive>
+
+  <delegateAnalysisEngineSpecifiers>
+    <delegateAnalysisEngine key="ControllerAnnotator">
+      <import location="../annotators/ControllerAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="ErrorAnnotator">
+      <import location="../annotators/ErrorAnnotator.xml"/>
+    </delegateAnalysisEngine>
+  </delegateAnalysisEngineSpecifiers>
+
+  <analysisEngineMetaData>
+    <name>Controller Pipeline</name>
+    <description></description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- Pipeline flow constraints -->
+    <flowConstraints>
+      <fixedFlow>
+        <node>ControllerAnnotator</node>
+        <node>ErrorAnnotator</node>
+      </fixedFlow>
+    </flowConstraints>
+
+  </analysisEngineMetaData>
+</analysisEngineDescription>

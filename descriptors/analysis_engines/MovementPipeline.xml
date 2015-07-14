@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/analysis_engines/MovementPipeline.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>false</primitive>
+
+  <delegateAnalysisEngineSpecifiers>
+    <delegateAnalysisEngine key="MovementAnnotator">
+      <import location="../annotators/MovementAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="MovementDirectionAnnotator">
+      <import location="../annotators/MovementDirectionAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="OscillationAnnotator">
+      <import location="../annotators/OscillationAnnotator.xml"/>
+    </delegateAnalysisEngine>
+  </delegateAnalysisEngineSpecifiers>
+
+  <analysisEngineMetaData>
+    <name>Movement Pipeline</name>
+    <description></description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- Pipeline flow constraints -->
+    <flowConstraints>
+      <fixedFlow>
+        <node>MovementAnnotator</node>
+        <node>MovementDirectionAnnotator</node>
+        <node>OscillationAnnotator</node>
+      </fixedFlow>
+    </flowConstraints>
+
+  </analysisEngineMetaData>
+</analysisEngineDescription>

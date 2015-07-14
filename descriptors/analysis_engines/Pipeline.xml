@@ -13,26 +13,8 @@
     <delegateAnalysisEngine key="AccelerationAnnotator">
       <import location="../annotators/AccelerationAnnotator.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="MovementAnnotator">
-      <import location="../annotators/MovementAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="MovementDirectionAnnotator">
-      <import location="../annotators/MovementDirectionAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="OscillationAnnotator">
-      <import location="../annotators/OscillationAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="ControllerAnnotator">
-      <import location="../annotators/ControllerAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="ErrorAnnotator">
-      <import location="../annotators/ErrorAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="PlannedMovementAnnotator">
-      <import location="../annotators/PlannedMovementAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="UnplannedStopAnnotator">
-      <import location="../annotators/UnplannedStopAnnotator.xml"/>
+    <delegateAnalysisEngine key="MovementControllerPipeline">
+      <import location="MovementControllerPipeline.xml"/>
     </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
@@ -83,13 +65,7 @@
       <fixedFlow>
         <node>JointStatePopulator</node>
         <node>AccelerationAnnotator</node>
-        <node>MovementAnnotator</node>
-        <node>MovementDirectionAnnotator</node>
-        <node>OscillationAnnotator</node>
-        <node>ControllerAnnotator</node>
-        <node>ErrorAnnotator</node>
-        <node>PlannedMovementAnnotator</node>
-        <node>UnplannedStopAnnotator</node>
+        <node>MovementControllerPipeline</node>
       </fixedFlow>
     </flowConstraints>
 
