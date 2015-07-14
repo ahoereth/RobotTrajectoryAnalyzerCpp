@@ -14,12 +14,12 @@ namespace utils {
 
 
 /**
- * Convert a array feature structure to a vector.
+ * Type conversion
  *
- * @param  fs Array feature structure to convert.
- * @return Resulting vector.
+ * @param  fs Double array feature structure.
+ * @return Vector of doubles.
  */
-std::vector<double> arrFStoVec(
+std::vector<double> toVector(
   const uima::DoubleArrayFS& fs
 ) {
   std::size_t size = fs.size();
@@ -34,12 +34,12 @@ std::vector<double> arrFStoVec(
 
 
 /**
- * Convert a array feature structure to a vector.
+ * Type conversion.
  *
- * @param  fs Array feature structure to convert.
- * @return Resulting vector.
+ * @param  fs String array feature structure.
+ * @return Vector of standard strings.
  */
-std::vector<std::string> arrFStoVec(
+std::vector<std::string> toVector(
   const uima::StringArrayFS& fs
 ) {
   std::size_t size = fs.size();

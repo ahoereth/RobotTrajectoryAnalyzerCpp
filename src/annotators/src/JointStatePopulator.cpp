@@ -89,7 +89,7 @@ class JointStatePopulator : public Annotator {
    */
   uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
     log = &annotatorContext.getLogger();
-    log->logMessage("JointStatePopulator: initialize()");
+    log->logMessage("JointStatePopulator::initialize()");
 
     host = "localhost";
     if (annotatorContext.isParameterDefined("Host")) {
@@ -106,9 +106,9 @@ class JointStatePopulator : public Annotator {
       annotatorContext.extractValue("Collection", collection);
     }
 
-    log->logMessage("Host: '" + host + "', "
-                   "Database: '" + database + "', "
-                   "Collection: '" + collection + "'");
+    log->logMessage("Host: " + host + ", "
+                    "Database: " + database + ", "
+                    "Collection: " + collection);
 
     try {
       conn.connect(host);
@@ -133,7 +133,7 @@ class JointStatePopulator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("JointStatePopulator:: typeSystemInit() begins");
+    log->logMessage("JointStatePopulator::typeSystemInit() begins");
 
     // JointState *********************************************
     JointState = typeSystem.getType("JointState");
@@ -149,7 +149,7 @@ class JointStatePopulator : public Annotator {
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
-    log->logMessage("JointStatePopulator:: typeSystemInit() ends");
+    log->logMessage("JointStatePopulator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -160,7 +160,7 @@ class JointStatePopulator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId destroy() {
-    log->logMessage("JointStatePopulator: destroy()");
+    log->logMessage("JointStatePopulator::destroy()");
     return UIMA_ERR_NONE;
   }
 

@@ -56,7 +56,7 @@ class MovementDirectionAnnotator : public Annotator {
    */
   uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
     log = &annotatorContext.getLogger();
-    log->logMessage("MovementDirectionAnnotator: initialize()");
+    log->logMessage("MovementDirectionAnnotator::initialize()");
     return UIMA_ERR_NONE;
   }
 
@@ -75,7 +75,7 @@ class MovementDirectionAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("MovementDirectionAnnotator:: typeSystemInit() begins");
+    log->logMessage("MovementDirectionAnnotator::typeSystemInit() begins");
 
     // JointState *********************************************
     JointState = typeSystem.getType("JointState");
@@ -121,7 +121,7 @@ class MovementDirectionAnnotator : public Annotator {
     nSpFtr = NegativeMovement.getFeatureByBaseName("startPosition");
     nEpFtr = NegativeMovement.getFeatureByBaseName("endPosition");
 
-    log->logMessage("MovementDirectionAnnotator:: typeSystemInit() ends");
+    log->logMessage("MovementDirectionAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -132,7 +132,7 @@ class MovementDirectionAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId destroy() {
-    log->logMessage("MovementDirectionAnnotator: destroy()");
+    log->logMessage("MovementDirectionAnnotator::destroy()");
     return UIMA_ERR_NONE;
   }
 

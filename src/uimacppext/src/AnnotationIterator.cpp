@@ -26,7 +26,7 @@ std::vector<double> AnnotationIterator::getDoubleVector(
   const icu::UnicodeString& featureName
 ) {
   uima::Feature feature = type.getFeatureByBaseName(featureName);
-  return utils::arrFStoVec(iterator.get().getDoubleArrayFSValue(feature));
+  return utils::toVector(iterator.get().getDoubleArrayFSValue(feature));
 }
 
 
@@ -41,7 +41,7 @@ std::vector<std::string> AnnotationIterator::getStringVector(
   const icu::UnicodeString& featureName
 ) {
   uima::Feature feature = type.getFeatureByBaseName(featureName);
-  return utils::arrFStoVec(iterator.get().getStringArrayFSValue(feature));
+  return utils::toVector(iterator.get().getStringArrayFSValue(feature));
 }
 
 

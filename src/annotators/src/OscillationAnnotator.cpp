@@ -41,7 +41,7 @@ class OscillationAnnotator : public Annotator {
    */
   uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
     log = &annotatorContext.getLogger();
-    log->logMessage("OscillationAnnotator: initialize()");
+    log->logMessage("OscillationAnnotator::initialize()");
 
     maxTimeVariance = 50;
     if (annotatorContext.isParameterDefined("MaxTimeVariance")) {
@@ -72,7 +72,7 @@ class OscillationAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("OscillationAnnotator:: typeSystemInit() begins");
+    log->logMessage("OscillationAnnotator::typeSystemInit() begins");
 
     // Movement ***********************************************
     Movement = typeSystem.getType("Movement");
@@ -95,7 +95,7 @@ class OscillationAnnotator : public Annotator {
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
-    log->logMessage("OscillationAnnotator:: typeSystemInit() ends");
+    log->logMessage("OscillationAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -106,7 +106,7 @@ class OscillationAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId destroy() {
-    log->logMessage("OscillationAnnotator: destroy()");
+    log->logMessage("OscillationAnnotator::destroy()");
     return UIMA_ERR_NONE;
   }
 

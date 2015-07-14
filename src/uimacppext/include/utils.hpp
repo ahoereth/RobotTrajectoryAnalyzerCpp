@@ -27,6 +27,7 @@ std::string toString(float x);
 std::string toString(int x);
 std::string toString(std::size_t x);
 std::string toString(const icu::UnicodeString& us);
+std::vector<std::string> toString(const std::vector<icu::UnicodeString>& vec);
 icu::UnicodeString toUS(const std::string& str);
 std::vector<std::string> split(const std::string& src, char del);
 std::string join(const std::vector<std::string>& src, const std::string& sep);
@@ -36,8 +37,8 @@ double calculateVariance(const std::vector<double>& vec);
 
 
 // UIMACPP specific utility functions.
-std::vector<double> arrFStoVec(const uima::DoubleArrayFS& fs);
-std::vector<std::string> arrFStoVec(const uima::StringArrayFS& fs);
+std::vector<double> toVector(const uima::DoubleArrayFS& fs);
+std::vector<std::string> toVector(const uima::StringArrayFS& fs);
 std::vector<uima::AnnotationFS> selectCovered(
   const uima::ANIndex& index,
   const uima::AnnotationFS& fs

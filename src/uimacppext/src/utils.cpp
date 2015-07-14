@@ -15,10 +15,10 @@ namespace utils {
 
 
 /**
- * Basic type conversion.
+ * Type conversion.
  *
- * @param  str Input string.
- * @return Output integer.
+ * @param  str Standard string.
+ * @return Integer.
  */
 int toInt(const std::string& str) {
   int num;
@@ -30,8 +30,8 @@ int toInt(const std::string& str) {
 /**
  * Type conversion for vector elements.
  *
- * @param  vec Input vector of string values.
- * @return Resulting vector of integer values.
+ * @param  vec Vector of standard strings.
+ * @return Vector of integers.
  */
 std::vector<int> toInt(const std::vector<std::string>& vec) {
   std::vector<int> result(vec.size(), 0);
@@ -43,10 +43,10 @@ std::vector<int> toInt(const std::vector<std::string>& vec) {
 
 
 /**
- * Basic type conversion.
+ * Type conversion.
  *
- * @param  x Double to convert to string.
- * @return The resulting string.
+ * @param  x Double.
+ * @return Standard string.
  */
 std::string toString(double x) {
   std::ostringstream ss;
@@ -56,10 +56,10 @@ std::string toString(double x) {
 
 
 /**
- * Basic type conversion.
+ * Type conversion.
  *
- * @param  x Float to convert to string.
- * @return The resulting string.
+ * @param  x Float.
+ * @return Standard string.
  */
 std::string toString(float x) {
   return toString(static_cast<double>(x));
@@ -67,10 +67,10 @@ std::string toString(float x) {
 
 
 /**
- * Basic type conversion.
+ * Type conversion.
  *
- * @param  x Integer to convert to string.
- * @return The resulting string.
+ * @param  x Integer.
+ * @return Standard string.
  */
 std::string toString(int x) {
   return toString(static_cast<double>(x));
@@ -78,10 +78,10 @@ std::string toString(int x) {
 
 
 /**
- * Basic type conversion.
+ * Type conversion.
  *
- * @param  x Unsigned integer to convert to string.
- * @return The resulting string.
+ * @param  x Unsigned integer.
+ * @return Standard string.
  */
 std::string toString(std::size_t x) {
   return toString(static_cast<double>(x));
@@ -89,9 +89,9 @@ std::string toString(std::size_t x) {
 
 
 /**
- * Unicode string to standard string conversion.
+ * Type conversion.
  *
- * @param  us Unicode source string
+ * @param  us Unicode string.
  * @return The resulting string.
  */
 std::string toString(const icu::UnicodeString& us) {
@@ -104,11 +104,25 @@ std::string toString(const icu::UnicodeString& us) {
 
 
 /**
- * Convert a C++ standard string to a ICU Unicode String as required by many
- * UIMA applications.
+ * Type conversion for vector elements.
  *
- * @param  str Std string to convert to a unicode string.
- * @return The resulting unicode string.
+ * @param  vec Vector of unicode strings.
+ * @return Vector of standard strings.
+ */
+std::vector<std::string> toString(const std::vector<icu::UnicodeString>& vec) {
+  std::vector<std::string> result(vec.size());
+  for (size_t i = 0, size = vec.size(); i < size; i++) {
+    result[i] = utils::toString(vec[i]);
+  }
+  return result;
+}
+
+
+/**
+ * Type conversion
+ *
+ * @param  str Standard string.
+ * @return Unicode string.
  */
 icu::UnicodeString toUS(const std::string& str) {
   return icu::UnicodeString(str.data(), str.length(), US_INV);

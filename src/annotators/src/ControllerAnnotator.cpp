@@ -121,7 +121,7 @@ class ControllerAnnotator : public Annotator {
    */
   uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
     log = &annotatorContext.getLogger();
-    log->logMessage("ControllerAnnotator: initialize()");
+    log->logMessage("ControllerAnnotator::initialize()");
 
     host = "localhost";
     if (annotatorContext.isParameterDefined("Host")) {
@@ -136,15 +136,13 @@ class ControllerAnnotator : public Annotator {
     if (annotatorContext.isParameterDefined("Collections")) {
       std::vector<icu::UnicodeString> tmpCollections;
       annotatorContext.extractValue("Collections", tmpCollections);
-      for (size_t i = 0, size = tmpCollections.size(); i < size; i++) {
-        collections.push_back(utils::toString(tmpCollections[i]));
-      }
+      collections = utils::toString(tmpCollections);
     } else {
       collections.push_back("r_arm_controller_state");
       collections.push_back("l_arm_controller_state");
     }
 
-    log->logMessage("Host: '" + host + "', Database: '" + database + "', "
+    log->logMessage("Host: " + host + ", Database: " + database + ", "
       "Collections: " + utils::join(collections, ", "));
 
     try {
@@ -171,7 +169,7 @@ class ControllerAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("ControllerAnnotator:: typeSystemInit() begins");
+    log->logMessage("ControllerAnnotator::typeSystemInit() begins");
 
     // JointState *********************************************
     JointState = typeSystem.getType("JointState");
@@ -205,7 +203,7 @@ class ControllerAnnotator : public Annotator {
     ciActFtr  = ControllerInput.getFeatureByBaseName("actual");
     ciErrFtr  = ControllerInput.getFeatureByBaseName("error");
 
-    log->logMessage("ControllerAnnotator:: typeSystemInit() ends");
+    log->logMessage("ControllerAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -216,7 +214,7 @@ class ControllerAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId destroy() {
-    log->logMessage("ControllerAnnotator: destroy()");
+    log->logMessage("ControllerAnnotator::destroy()");
     return UIMA_ERR_NONE;
   }
 
@@ -305,7 +303,7 @@ class ControllerAnnotator : public Annotator {
     }
 
     log->logMessage("ControllerAnnotator::process() ends");
-    return UIMA_ERR_NONE;
+    return errorId;
   }
 };
 

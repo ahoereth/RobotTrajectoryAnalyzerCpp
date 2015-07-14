@@ -44,7 +44,7 @@ class MovementAnnotator : public Annotator {
    */
   uima::TyErrorId initialize(uima::AnnotatorContext& annotatorContext) {
     log = &annotatorContext.getLogger();
-    log->logMessage("MovementAnnotator: initialize()");
+    log->logMessage("MovementAnnotator::initialize()");
 
     minVariance = 0.000003f;
     if (annotatorContext.isParameterDefined("MinVariance")) {
@@ -75,7 +75,7 @@ class MovementAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("MovementAnnotator:: typeSystemInit() begins");
+    log->logMessage("MovementAnnotator::typeSystemInit() begins");
 
     // JointState *********************************************
     JointState = typeSystem.getType("JointState");
@@ -98,7 +98,7 @@ class MovementAnnotator : public Annotator {
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
 
-    log->logMessage("MovementAnnotator:: typeSystemInit() ends");
+    log->logMessage("MovementAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -109,7 +109,7 @@ class MovementAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId destroy() {
-    log->logMessage("MovementAnnotator: destroy()");
+    log->logMessage("MovementAnnotator::destroy()");
     return UIMA_ERR_NONE;
   }
 
@@ -132,7 +132,7 @@ class MovementAnnotator : public Annotator {
       std::list<uima::DoubleArrayFS>::const_iterator positions = lfs.begin();
       positions != lfs.end(); ++positions, i++
     ) {
-      variances[i] = utils::calculateVariance(utils::arrFStoVec(*positions));
+      variances[i] = utils::calculateVariance(utils::toVector(*positions));
     }
 
     return variances;
