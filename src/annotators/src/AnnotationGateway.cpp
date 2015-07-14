@@ -29,7 +29,7 @@ AnnotationGateway::~AnnotationGateway(void) {
   delete engine;
   delete stdCoutLogger;
   delete fileLogger;
-  delete typeSystem;
+//  delete typeSystem;
 //  delete annotatorContext;
 //  delete aeDescription;
 }
