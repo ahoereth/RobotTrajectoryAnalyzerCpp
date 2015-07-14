@@ -5,11 +5,11 @@
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
   <primitive>true</primitive>
-  <annotatorImplementationName>UnplannedStopAnnotator</annotatorImplementationName>
+  <annotatorImplementationName>SelfCollisionAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Unplanned Stop Annotator</name>
-    <description>Annotates unplanned robot movement stops.</description>
+    <name>Self Collision Annotator</name>
+    <description>Annotates collisions of the robots own joints with each other.</description>
     <version>1.0</version>
     <vendor/>
 
@@ -20,13 +20,6 @@
         <description>Threshold for the error overlap.</description>
         <type>Integer</type>
         <multiValued>false</multiValued>
-        <mandatory>true</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>Controllers</name>
-        <description>List of controller names to annotate.</description>
-        <type>String</type>
-        <multiValued>true</multiValued>
         <mandatory>true</mandatory>
       </configurationParameter>
     </configurationParameters>
@@ -40,23 +33,14 @@
           <integer>15</integer>
         </value>
       </nameValuePair>
-      <nameValuePair>
-        <name>Controllers</name>
-        <value>
-          <array>
-            <string>r_arm_controller_state</string>
-            <string>l_arm_controller_state</string>
-          </array>
-        </value>
-      </nameValuePair>
     </configurationParameterSettings>
 
     <!-- TypeSystem Definition -->
     <typeSystemDescription>
       <imports>
-        <import location="../types/ControllerError.xml"/>
-        <import location="../types/PlannedMovement.xml"/>
+        <import location="../types/UnplannedMovement.xml"/>
         <import location="../types/UnplannedStop.xml"/>
+        <import location="../types/SelfCollision.xml"/>
       </imports>
     </typeSystemDescription>
 
@@ -64,12 +48,12 @@
     <capabilities>
       <capability>
         <inputs>
-          <type allAnnotatorFeatures="true">ControllerError</type>
-          <type allAnnotatorFeatures="true">PlannedMovement</type>
+          <type allAnnotatorFeatures="true">UnplannedMovement</type>
+          <type allAnnotatorFeatures="true">UnplannedStop</type>
         </inputs>
 
         <outputs>
-          <type allAnnotatorFeatures="true">UnplannedStop</type>
+          <type allAnnotatorFeatures="true">SelfCollision</type>
         </outputs>
       </capability>
     </capabilities>

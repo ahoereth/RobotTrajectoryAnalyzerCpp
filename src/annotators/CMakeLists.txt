@@ -76,6 +76,9 @@ target_link_libraries(PlannedMovementAnnotator uimautils)
 add_uima_annotator(UnplannedStopAnnotator src/UnplannedStopAnnotator.cpp)
 target_link_libraries(UnplannedStopAnnotator uimautils)
 
+add_uima_annotator(SelfCollisionAnnotator src/SelfCollisionAnnotator.cpp)
+target_link_libraries(SelfCollisionAnnotator uimautils)
+
 ################################################################################
 ## Libraries                                                                  ##
 ################################################################################

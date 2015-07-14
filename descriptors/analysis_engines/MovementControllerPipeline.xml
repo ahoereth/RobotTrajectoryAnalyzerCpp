@@ -19,6 +19,9 @@
     <delegateAnalysisEngine key="UnplannedStopAnnotator">
       <import location="../annotators/UnplannedStopAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="SelfCollisionAnnotator">
+      <import location="../annotators/SelfCollisionAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -27,6 +30,29 @@
     <version>1.0</version>
     <vendor/>
 
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>Threshold</name>
+        <type>Integer</type>
+        <overrides>
+          <parameter>UnplannedStopAnnotator/Threshold</parameter>
+          <parameter>SelfCollisionAnnotator/Threshold</parameter>
+        </overrides>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Configuration Parameter Values -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>Threshold</name>
+        <value>
+          <integer>15</integer>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
     <!-- Pipeline flow constraints -->
     <flowConstraints>
       <fixedFlow>
@@ -34,6 +60,7 @@
         <node>ControllerPipeline</node>
         <node>PlannedMovementAnnotator</node>
         <node>UnplannedStopAnnotator</node>
+        <node>SelfCollisionAnnotator</node>
       </fixedFlow>
     </flowConstraints>
 
