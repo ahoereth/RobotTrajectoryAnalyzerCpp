@@ -53,7 +53,7 @@ void AnnotationGateway::initAE() {
 
   // Initialize Analysis Engine.
   engine = uima::Framework::createAnalysisEngine(
-    true, "descriptors/analysis_engines/Pipeline.xml", errorInfo);
+    true, "descriptors/pipelines/Pipeline.xml", errorInfo);
   utils::checkError(errorInfo, *engine);
 
   // Get a new CAS.

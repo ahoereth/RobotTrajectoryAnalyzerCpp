@@ -13,19 +13,10 @@
     <delegateAnalysisEngine key="ControllerPipeline">
       <import location="ControllerPipeline.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="PlannedMovementAnnotator">
-      <import location="../annotators/PlannedMovementAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="UnplannedStopAnnotator">
-      <import location="../annotators/UnplannedStopAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="SelfCollisionAnnotator">
-      <import location="../annotators/SelfCollisionAnnotator.xml"/>
-    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
-    <name>Pipeline</name>
+    <name>MovementControllerPipeline</name>
     <description></description>
     <version>1.0</version>
     <vendor/>
@@ -58,9 +49,6 @@
       <fixedFlow>
         <node>MovementPipeline</node>
         <node>ControllerPipeline</node>
-        <node>PlannedMovementAnnotator</node>
-        <node>UnplannedStopAnnotator</node>
-        <node>SelfCollisionAnnotator</node>
       </fixedFlow>
     </flowConstraints>
 

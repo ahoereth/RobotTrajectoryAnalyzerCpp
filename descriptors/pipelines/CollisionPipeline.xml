@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/analysis_engines/MovementControllerPipeline.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>false</primitive>
+
+  <delegateAnalysisEngineSpecifiers>
+    <delegateAnalysisEngine key="PlannedMovementAnnotator">
+      <import location="../annotators/PlannedMovementAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="UnplannedStopAnnotator">
+      <import location="../annotators/UnplannedStopAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="SelfCollisionAnnotator">
+      <import location="../annotators/SelfCollisionAnnotator.xml"/>
+    </delegateAnalysisEngine>
+  </delegateAnalysisEngineSpecifiers>
+
+  <analysisEngineMetaData>
+    <name>CollisionPipeline</name>
+    <description></description>
+    <version>1.0</version>
+    <vendor/>
+
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>Threshold</name>
+        <type>Integer</type>
+        <overrides>
+          <parameter>UnplannedStopAnnotator/Threshold</parameter>
+          <parameter>SelfCollisionAnnotator/Threshold</parameter>
+        </overrides>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Configuration Parameter Values -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>Threshold</name>
+        <value>
+          <integer>15</integer>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!-- Pipeline flow constraints -->
+    <flowConstraints>
+      <fixedFlow>
+        <node>PlannedMovementAnnotator</node>
+        <node>UnplannedStopAnnotator</node>
+        <node>SelfCollisionAnnotator</node>
+      </fixedFlow>
+    </flowConstraints>
+
+  </analysisEngineMetaData>
+</analysisEngineDescription>

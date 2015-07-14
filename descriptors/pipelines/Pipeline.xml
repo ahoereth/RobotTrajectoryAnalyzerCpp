@@ -16,6 +16,9 @@
     <delegateAnalysisEngine key="MovementControllerPipeline">
       <import location="MovementControllerPipeline.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="CollisionPipeline">
+      <import location="CollisionPipeline.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -32,6 +35,7 @@
         <overrides>
           <parameter>JointStatePopulator/Host</parameter>
           <parameter>ControllerAnnotator/Host</parameter>
+          <parameter>RobotStateAnnotator/Host</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -66,6 +70,7 @@
         <node>JointStatePopulator</node>
         <node>AccelerationAnnotator</node>
         <node>MovementControllerPipeline</node>
+        <node>CollisionPipeline</node>
       </fixedFlow>
     </flowConstraints>
 
