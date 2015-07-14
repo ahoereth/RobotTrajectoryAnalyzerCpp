@@ -67,6 +67,9 @@ target_link_libraries(ControllerAnnotator
 #  ${Boost_LIBRARIES}
   uimautils)
 
+add_uima_annotator(ErrorAnnotator src/ErrorAnnotator.cpp)
+target_link_libraries(ErrorAnnotator uimautils)
+
 ################################################################################
 ## Libraries                                                                  ##
 ################################################################################

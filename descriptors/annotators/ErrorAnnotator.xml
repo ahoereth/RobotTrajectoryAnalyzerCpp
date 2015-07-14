@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/annotators/ErrorAnnotator.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>ErrorAnnotator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>Error Annotator</name>
+    <description>Annotates controller input errors.</description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>MinError</name>
+        <description>Minimum value to detect as error.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>MinLength</name>
+        <description>Minimum error length to detect.</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Configuration Parameter Values -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>MinError</name>
+        <value>
+          <float>0.01</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>MinLength</name>
+        <value>
+          <integer>5</integer>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="../types/ControllerInput.xml"/>
+        <import location="../types/ControllerError.xml"/>
+      </imports>
+    </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">ControllerInput</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">ControllerError</type>
+        </outputs>
+      </capability>
+    </capabilities>
+  </analysisEngineMetaData>
+</analysisEngineDescription>
