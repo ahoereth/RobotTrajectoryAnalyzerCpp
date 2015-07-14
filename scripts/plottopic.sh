@@ -10,7 +10,7 @@ fi
 
 # Topic data size.
 if [ -n "$2" ] ; then
-  size=$2
+  let size=$2-1
 else
   echo "array length argument missing"
   exit 2
@@ -19,8 +19,9 @@ fi
 # Build plot command.
 plotcommand="rqt_plot "
 for i in `seq 0 $size` ; do
-  plotcommand="$plotcommand /$topic[$i]"
+  plotcommand="$plotcommand /$topic/data[$i]"
 done
 
 # Plot.
+echo $plotcommand
 eval $plotcommand
