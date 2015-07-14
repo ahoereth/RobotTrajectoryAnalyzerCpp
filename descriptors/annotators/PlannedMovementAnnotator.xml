@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/annotators/PlannedMovementAnnotator.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>PlannedMovementAnnotator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>Planned Movement Annotator</name>
+    <description>Annotates planned and unplanned joint movements.</description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="../types/Movement.xml"/>
+        <import location="../types/ControllerError.xml"/>
+        <import location="../types/PlannedMovement.xml"/>
+        <import location="../types/UnplannedMovement.xml"/>
+      </imports>
+    </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">Movement</type>
+          <type allAnnotatorFeatures="true">ControllerError</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">PlannedMovement</type>
+          <type allAnnotatorFeatures="true">UnplannedMovement</type>
+        </outputs>
+      </capability>
+    </capabilities>
+  </analysisEngineMetaData>
+</analysisEngineDescription>

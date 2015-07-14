@@ -28,6 +28,9 @@
     <delegateAnalysisEngine key="ErrorAnnotator">
       <import location="../annotators/ErrorAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="PlannedMovementAnnotator">
+      <import location="../annotators/PlannedMovementAnnotator.xml"/>
+    </delegateAnalysisEngine>
   </delegateAnalysisEngineSpecifiers>
 
   <analysisEngineMetaData>
@@ -82,6 +85,7 @@
         <node>OscillationAnnotator</node>
         <node>ControllerAnnotator</node>
         <node>ErrorAnnotator</node>
+        <node>PlannedMovementAnnotator</node>
       </fixedFlow>
     </flowConstraints>
 
