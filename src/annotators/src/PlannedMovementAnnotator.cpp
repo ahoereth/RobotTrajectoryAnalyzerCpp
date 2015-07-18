@@ -19,10 +19,10 @@ class PlannedMovementAnnotator : public Annotator {
   uima::Type PlannedMovement;
   uima::Type UnplannedMovement;
 
-  uima::Feature mvNameFtr;  // Movement Joint Name
-  uima::Feature ceNameFtr;  // Controller Error Joint Name
-  uima::Feature pmNameFtr;  // Planned Movement Joint Name
-  uima::Feature umNameFtr;  // Unplanned Movement Joint Name
+  uima::Feature mvNameFtr;  // Movement jointName
+  uima::Feature ceNameFtr;  // ControllerError jointName
+  uima::Feature pmNameFtr;  // PlannedMovement jointName
+  uima::Feature umNameFtr;  // UnplannedMovement jointName
 
   // Configuration Parameters
   float minError;
@@ -64,7 +64,7 @@ class PlannedMovementAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("PlannedMovementAnnotator::typeSystemInit() begins");
+    log->logMessage("PlannedMovementAnnotator::typeSystemInit()");
 
     // Movement ***********************************************
     Movement = typeSystem.getType("Movement");
@@ -98,7 +98,6 @@ class PlannedMovementAnnotator : public Annotator {
     }
     umNameFtr = UnplannedMovement.getFeatureByBaseName("jointName");
 
-    log->logMessage("PlannedMovementAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 

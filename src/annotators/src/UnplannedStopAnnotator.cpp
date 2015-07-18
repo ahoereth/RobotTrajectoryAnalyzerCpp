@@ -66,7 +66,6 @@ class UnplannedStopAnnotator : public Annotator {
 
     log->logMessage("Threshold: " + utils::toString(threshold) + ", "
                     "Controllers: " + utils::join(controllers, ", "));
-
     return UIMA_ERR_NONE;
   }
 
@@ -83,7 +82,7 @@ class UnplannedStopAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("UnplannedStopAnnotator::typeSystemInit() begins");
+    log->logMessage("UnplannedStopAnnotator::typeSystemInit()");
 
     // ControllerError ****************************************
     ControllerError = typeSystem.getType("ControllerError");
@@ -101,7 +100,7 @@ class UnplannedStopAnnotator : public Annotator {
     }
     pmNameFtr = PlannedMovement.getFeatureByBaseName("jointName");
 
-    // UnplannedStop **************************************
+    // UnplannedStop ******************************************
     UnplannedStop = typeSystem.getType("UnplannedStop");
     if (!PlannedMovement.isValid()) {
       log->logError("Error getting Type object for UnplannedStop");
@@ -109,7 +108,6 @@ class UnplannedStopAnnotator : public Annotator {
     }
     usNameFtr = UnplannedStop.getFeatureByBaseName("jointName");
 
-    log->logMessage("UnplannedStopAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 

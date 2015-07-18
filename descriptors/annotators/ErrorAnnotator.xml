@@ -8,7 +8,7 @@
   <annotatorImplementationName>ErrorAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Error Annotator</name>
+    <name>ErrorAnnotator</name>
     <description>Annotates controller input errors.</description>
     <version>1.0</version>
     <vendor/>

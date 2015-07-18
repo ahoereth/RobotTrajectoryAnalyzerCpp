@@ -13,31 +13,31 @@
       <features>
 
         <featureDescription>
-          <name>upperLimit</name>
-          <description/>
-          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
-        </featureDescription>
-
-        <featureDescription>
-          <name>lowerLimit</name>
-          <description/>
-          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
-        </featureDescription>
-
-        <featureDescription>
           <name>jointNames</name>
           <description/>
           <rangeTypeName>uima.cas.StringArray</rangeTypeName>
         </featureDescription>
 
         <featureDescription>
-          <name>effort</name>
+          <name>upperLimits</name>
           <description/>
           <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
         </featureDescription>
 
         <featureDescription>
-          <name>velocity</name>
+          <name>lowerLimits</name>
+          <description/>
+          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
+        </featureDescription>
+
+        <featureDescription>
+          <name>efforts</name>
+          <description/>
+          <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
+        </featureDescription>
+
+        <featureDescription>
+          <name>velocities</name>
           <description/>
           <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
         </featureDescription>

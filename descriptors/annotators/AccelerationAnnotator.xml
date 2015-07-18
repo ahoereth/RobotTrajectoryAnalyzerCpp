@@ -8,7 +8,7 @@
   <annotatorImplementationName>AccelerationAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Acceleration Annotator</name>
+    <name>AccelerationAnnotator</name>
     <description>Annotates acceleration data.</description>
     <version>1.0</version>
     <vendor>ahoereth</vendor>

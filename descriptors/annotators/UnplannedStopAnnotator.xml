@@ -8,7 +8,7 @@
   <annotatorImplementationName>UnplannedStopAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Unplanned Stop Annotator</name>
+    <name>UnplannedStopAnnotator</name>
     <description>Annotates unplanned robot movement stops.</description>
     <version>1.0</version>
     <vendor/>

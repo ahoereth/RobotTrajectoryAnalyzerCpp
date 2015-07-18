@@ -18,12 +18,14 @@
         </featureDescription>
 
         <featureDescription>
+          <!-- NOTE: Confusable with the getBeginPosition() function. -->
           <name>startPosition</name>
           <description/>
           <rangeTypeName>uima.cas.Double</rangeTypeName>
         </featureDescription>
 
         <featureDescription>
+          <!-- NOTE: Confusable with the getEndPosition() function. -->
           <name>endPosition</name>
           <description/>
           <rangeTypeName>uima.cas.Double</rangeTypeName>

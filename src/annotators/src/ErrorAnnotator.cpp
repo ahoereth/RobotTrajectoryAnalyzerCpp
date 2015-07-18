@@ -20,11 +20,11 @@ class ErrorAnnotator : public Annotator {
   uima::Type ControllerInput;
   uima::Type ControllerError;
 
-  uima::Feature jtpPosFtr;   // Joint Trajectory Point Positions
-  uima::Feature ciTypeFtr;   // Controller Input Controller Type
-  uima::Feature ciJnsFtr;    // Controller Input Joint Names
-  uima::Feature ciErrFtr;    // Controller Input Error
-  uima::Feature ceNameFtr;   // Controller Error Joint Name
+  uima::Feature jtpPosFtr;  // JointTrajectoryPoint positions
+  uima::Feature ciTypeFtr;  // ControllerInput controllerType
+  uima::Feature ciJnsFtr;   // ControllerInput jointNames
+  uima::Feature ciErrFtr;   // ControllerInput error
+  uima::Feature ceNameFtr;  // ControllerError jointName
 
   // Configuration Parameters
   float minError;
@@ -50,11 +50,13 @@ class ErrorAnnotator : public Annotator {
     log = &annotatorContext.getLogger();
     log->logMessage("ErrorAnnotator::initialize()");
 
+    // MinError ***********************************************
     minError = 0.01;
     if (annotatorContext.isParameterDefined("MinError")) {
       annotatorContext.extractValue("MinError", minError);
     }
 
+    // MinLength **********************************************
     minLength = 5;
     if (annotatorContext.isParameterDefined("MinLength")) {
       annotatorContext.extractValue("MinLength", minLength);
@@ -79,7 +81,7 @@ class ErrorAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("ErrorAnnotator::typeSystemInit() begins");
+    log->logMessage("ErrorAnnotator::typeSystemInit()");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -107,7 +109,6 @@ class ErrorAnnotator : public Annotator {
     }
     ceNameFtr = ControllerError.getFeatureByBaseName("jointName");
 
-    log->logMessage("ErrorAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 

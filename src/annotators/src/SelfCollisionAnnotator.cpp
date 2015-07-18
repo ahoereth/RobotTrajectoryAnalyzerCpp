@@ -28,6 +28,7 @@ class SelfCollisionAnnotator : public Annotator {
   // Configuration Parameters
   int threshold;
 
+
  public:
   /** Constructor */
   SelfCollisionAnnotator(void) {}
@@ -54,7 +55,6 @@ class SelfCollisionAnnotator : public Annotator {
     }
 
     log->logMessage("Threshold: " + utils::toString(threshold));
-
     return UIMA_ERR_NONE;
   }
 
@@ -71,9 +71,9 @@ class SelfCollisionAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("SelfCollisionAnnotator::typeSystemInit() begins");
+    log->logMessage("SelfCollisionAnnotator::typeSystemInit()");
 
-    // UnplannedMovement **************************************
+    // UnplannedMovement **********************************
     UnplannedMovement = typeSystem.getType("UnplannedMovement");
     if (!UnplannedMovement.isValid()) {
       log->logError("Error getting Type object for UnplannedMovement");
@@ -98,7 +98,6 @@ class SelfCollisionAnnotator : public Annotator {
     scVicFtr = SelfCollision.getFeatureByBaseName("victim");
     scPerFtr = SelfCollision.getFeatureByBaseName("perpetrator");
 
-    log->logMessage("SelfCollisionAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 

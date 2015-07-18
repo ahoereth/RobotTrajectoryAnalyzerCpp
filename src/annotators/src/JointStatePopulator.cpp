@@ -10,21 +10,30 @@
 
 
 using uima::Annotator;  // required for MAKE_AE
-using uima::Feature;
 
 
 class JointStatePopulator : public Annotator {
  private:
+  mongo::DBClientConnection conn;
   uima::LogFacility* log;
   uima::CAS* currentCas;
+
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
 
+  uima::Feature jsJtpFtr;    // JointState jointTrajectoryPoint
+  uima::Feature jsSeqFtr;    // JointState seq
+  uima::Feature jsTimeFtr;   // JointState time
+  uima::Feature jsFrameFtr;  // JointState frameID
+  uima::Feature jsNameFtr;   // JointState jointNames
+  uima::Feature jtpPosFtr;   // JointTrajectoryPoint positions
+  uima::Feature jtpEffFtr;   // JointTrajectoryPoint efforts
+  uima::Feature jtpVelFtr;   // JointTrajectoryPoint velocities
+
+  // Configuration Parameters
   std::string host;
   std::string database;
   std::string collection;
-
-  mongo::DBClientConnection conn;
 
 
   /**
@@ -91,16 +100,19 @@ class JointStatePopulator : public Annotator {
     log = &annotatorContext.getLogger();
     log->logMessage("JointStatePopulator::initialize()");
 
+    // Host ***************************************************
     host = "localhost";
     if (annotatorContext.isParameterDefined("Host")) {
       annotatorContext.extractValue("Host", host);
     }
 
+    // Database ***********************************************
     database = "dummy1";
     if (annotatorContext.isParameterDefined("Database")) {
       annotatorContext.extractValue("Database", database);
     }
 
+    // Collection *********************************************
     collection = "joint_states";
     if (annotatorContext.isParameterDefined("Collection")) {
       annotatorContext.extractValue("Collection", collection);
@@ -112,7 +124,7 @@ class JointStatePopulator : public Annotator {
 
     try {
       conn.connect(host);
-      log->logMessage("connected ok");
+      log->logMessage("Mongo connection established.");
     } catch (const mongo::DBException& e) {
       log->logError("caught " + e.toString());
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
@@ -133,7 +145,7 @@ class JointStatePopulator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("JointStatePopulator::typeSystemInit() begins");
+    log->logMessage("JointStatePopulator::typeSystemInit()");
 
     // JointState *********************************************
     JointState = typeSystem.getType("JointState");
@@ -141,6 +153,11 @@ class JointStatePopulator : public Annotator {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    jsJtpFtr   = JointState.getFeatureByBaseName("jointTrajectoryPoint");
+    jsSeqFtr   = JointState.getFeatureByBaseName("seq");
+    jsTimeFtr  = JointState.getFeatureByBaseName("time");
+    jsFrameFtr = JointState.getFeatureByBaseName("frameID");
+    jsNameFtr  = JointState.getFeatureByBaseName("jointNames");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -148,8 +165,10 @@ class JointStatePopulator : public Annotator {
       log->logError("Error getting Type object for JointTrajectoryPoint");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    jtpPosFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
+    jtpEffFtr = JointTrajectoryPoint.getFeatureByBaseName("efforts");
+    jtpVelFtr = JointTrajectoryPoint.getFeatureByBaseName("velocities");
 
-    log->logMessage("JointStatePopulator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -182,37 +201,34 @@ class JointStatePopulator : public Annotator {
     // Save cas for use in other member functions.
     currentCas = &cas;
 
-    // Initialize feature structure index and individual relevant features.
+    // Initialize feature structure index and reused variables.
     uima::FSIndexRepository& index = cas.getIndexRepository();
-    Feature jtpFtr = JointState.getFeatureByBaseName("jointTrajectoryPoint");
-    Feature seqFtr = JointState.getFeatureByBaseName("seq");
-    Feature timeFtr = JointState.getFeatureByBaseName("time");
-    Feature frameFtr = JointState.getFeatureByBaseName("frameID");
-    Feature nameFtr = JointState.getFeatureByBaseName("name");
-    Feature posFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
-    Feature effFtr = JointTrajectoryPoint.getFeatureByBaseName("effort");
-    Feature velFtr = JointTrajectoryPoint.getFeatureByBaseName("velocities");
+    uima::AnnotationFS js;
+    uima::FeatureStructure jtp;
+    std::size_t seq;
+    mongo::BSONObj obj, header;
 
-    // Query MongoDB and parse result cursor.
+    // Query MongoDB.
     std::auto_ptr<mongo::DBClientCursor> cursor =
       conn.query(database + "." + collection, mongo::BSONObj());
+
+    // Parse mongo query results.
     while (cursor->more()) {
-      mongo::BSONObj obj = cursor->next();
-      mongo::BSONObj header = obj.getObjectField("header");
+      obj = cursor->next();
+      header = obj.getObjectField("header");
 
-      std::size_t seq = header.getIntField("seq");
-      uima::FeatureStructure js = cas.createAnnotation(JointState, seq, seq);
-      uima::FeatureStructure jtp = cas.createFS(JointTrajectoryPoint);
+      seq = header.getIntField("seq");
+      js = cas.createAnnotation(JointState, seq, seq);
+      jtp = cas.createFS(JointTrajectoryPoint);
 
-      js.setFSValue(jtpFtr, jtp);
-      js.setIntValue(seqFtr, seq);
-      js.setIntValue(seqFtr, header.getIntField("seq"));
-      js.setIntValue(timeFtr, header.getField("stamp").Date().asInt64());
-      js.setStringValue(frameFtr, utils::toUS(obj.getField("frame_id")));
-      js.setFSValue(nameFtr, toStringArrayFS(obj.getField("name")));
-      jtp.setFSValue(posFtr, toDoubleArrayFS(obj.getField("position")));
-      jtp.setFSValue(effFtr, toDoubleArrayFS(obj.getField("effort")));
-      jtp.setFSValue(velFtr, toDoubleArrayFS(obj.getField("velocity")));
+      js.setFSValue(jsJtpFtr, jtp);
+      js.setIntValue(jsSeqFtr, seq);
+      js.setIntValue(jsTimeFtr, header.getField("stamp").Date().asInt64());
+      js.setStringValue(jsFrameFtr, utils::toUS(obj.getField("frame_id")));
+      js.setFSValue(jsNameFtr, toStringArrayFS(obj.getField("name")));
+      jtp.setFSValue(jtpPosFtr, toDoubleArrayFS(obj.getField("position")));
+      jtp.setFSValue(jtpEffFtr, toDoubleArrayFS(obj.getField("effort")));
+      jtp.setFSValue(jtpVelFtr, toDoubleArrayFS(obj.getField("velocity")));
 
       index.addFS(js);
     }

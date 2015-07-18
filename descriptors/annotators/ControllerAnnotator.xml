@@ -8,7 +8,7 @@
   <annotatorImplementationName>ControllerAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Controller Annotator</name>
+    <name>ControllerAnnotator</name>
     <description>Annotates controller inputs.</description>
     <version>1.0</version>
     <vendor/>

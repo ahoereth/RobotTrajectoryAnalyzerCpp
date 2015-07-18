@@ -8,7 +8,6 @@
 
 
 using uima::Annotator;  // required for MAKE_AE
-using uima::Feature;
 
 
 class MovementDirectionAnnotator : public Annotator {
@@ -25,16 +24,18 @@ class MovementDirectionAnnotator : public Annotator {
   uima::Type PositiveMovement;
   uima::Type NegativeMovement;
 
-  uima::Feature jsnFtr;  // Joint State Name Feature
-  uima::Feature jtpFtr;  // Joint Trajectory Point Feature
-  uima::Feature posFtr;  // Joint Trajectory Point Positions Feature
-  uima::Feature pJnFtr;  // Positive Joint Name Feature
-  uima::Feature pSpFtr;  // Positive Start Position Feature
-  uima::Feature pEpFtr;  // Positive End Position Feature
-  uima::Feature nJnFtr;  // Negative Joint Name Feature
-  uima::Feature nSpFtr;  // Negative Start Position Feature
-  uima::Feature nEpFtr;  // Negative End Position Feature
+  uima::Feature jsNameFtr;  // JointState jointNames
+  uima::Feature jsJtpFtr;   // JointState jointTrajectoryPoint
+  uima::Feature jtpPosFtr;  // JointTrajectoryPoint positions
+  uima::Feature mvNameFtr;  // Movement jointName
+  uima::Feature pJnFtr;     // PositiveMovement jointName
+  uima::Feature pSpFtr;     // PositiveMovement startPosition
+  uima::Feature pEpFtr;     // PositiveMovement endPosition
+  uima::Feature nJnFtr;     // NegativeMovement jointName
+  uima::Feature nSpFtr;     // NegativeMovement startPosition
+  uima::Feature nEpFtr;     // NegativeMovement endPosition
 
+  // Configuration Parameters
   float minVariance;
   std::size_t observedJointStates;
 
@@ -75,7 +76,7 @@ class MovementDirectionAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("MovementDirectionAnnotator::typeSystemInit() begins");
+    log->logMessage("MovementDirectionAnnotator::typeSystemInit()");
 
     // JointState *********************************************
     JointState = typeSystem.getType("JointState");
@@ -83,8 +84,8 @@ class MovementDirectionAnnotator : public Annotator {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
-    jsnFtr = JointState.getFeatureByBaseName("name");
-    jtpFtr = JointState.getFeatureByBaseName("jointTrajectoryPoint");
+    jsNameFtr = JointState.getFeatureByBaseName("jointNames");
+    jsJtpFtr = JointState.getFeatureByBaseName("jointTrajectoryPoint");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -92,7 +93,7 @@ class MovementDirectionAnnotator : public Annotator {
       log->logError("Error getting Type object for JointTrajectoryPoint");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
-    posFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
+    jtpPosFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
 
     // Movement ***********************************************
     Movement = typeSystem.getType("Movement");
@@ -100,6 +101,7 @@ class MovementDirectionAnnotator : public Annotator {
       log->logError("Error getting Type object for Movement");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    mvNameFtr = Movement.getFeatureByBaseName("jointName");
 
     // PositiveMovement ***************************************
     PositiveMovement = typeSystem.getType("PositiveMovement");
@@ -121,7 +123,6 @@ class MovementDirectionAnnotator : public Annotator {
     nSpFtr = NegativeMovement.getFeatureByBaseName("startPosition");
     nEpFtr = NegativeMovement.getFeatureByBaseName("endPosition");
 
-    log->logMessage("MovementDirectionAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -148,9 +149,9 @@ class MovementDirectionAnnotator : public Annotator {
     const uima::FeatureStructure& js,
     const uima::UnicodeStringRef& name
   ) {
-    uima::StringArrayFS names = js.getStringArrayFSValue(jsnFtr);
+    uima::StringArrayFS names = js.getStringArrayFSValue(jsNameFtr);
     uima::DoubleArrayFS positions =
-      js.getFSValue(jtpFtr).getDoubleArrayFSValue(posFtr);
+      js.getFSValue(jsJtpFtr).getDoubleArrayFSValue(jtpPosFtr);
 
     double result = -1;
     for (size_t i = 0, size = names.size(); i < size; ++i) {
@@ -239,7 +240,6 @@ class MovementDirectionAnnotator : public Annotator {
     uima::ANIterator moveIter = cas.getAnnotationIndex(Movement).iterator();
 
     // Initialize reused variables.
-    Feature jnFtr = Movement.getFeatureByBaseName("jointName");
     uima::AnnotationFS move, js;
     uima::UnicodeStringRef name;
     std::vector<uima::AnnotationFS> jointStates;
@@ -258,7 +258,7 @@ class MovementDirectionAnnotator : public Annotator {
         js = jointStates[i];
         end = js.getEndPosition();
         begin = js.getBeginPosition();
-        name = move.getStringValue(jnFtr);
+        name = move.getStringValue(mvNameFtr);
         pos = getPosByName(js, name);
         posStart = pos;
         posDiff = pos - posPrev;

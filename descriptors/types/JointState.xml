@@ -13,8 +13,7 @@
       <features>
 
         <featureDescription>
-          <!-- "names"? -->
-          <name>name</name>
+          <name>jointNames</name>
           <description/>
           <rangeTypeName>uima.cas.StringArray</rangeTypeName>
         </featureDescription>

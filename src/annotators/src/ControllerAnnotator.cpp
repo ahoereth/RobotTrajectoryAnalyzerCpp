@@ -15,6 +15,7 @@ using uima::Annotator;  // required for MAKE_AE
 
 class ControllerAnnotator : public Annotator {
  private:
+  mongo::DBClientConnection conn;
   uima::LogFacility* log;
   uima::CAS* currentCas;
 
@@ -22,24 +23,22 @@ class ControllerAnnotator : public Annotator {
   uima::Type JointTrajectoryPoint;
   uima::Type ControllerInput;
 
-  uima::Feature jsTimeFtr;   // Joint State Time
-  uima::Feature jtpPosFtr;   // Joint Trajectory Point Positions
-  uima::Feature jtpEffFtr;   // Joint Trajectory Point Effort
-  uima::Feature jtpVelFtr;   // Joint Trajectory Point Velocities
-  uima::Feature jtpAccFtr;   // Joint Trajectory Point Accelerations
-  uima::Feature ciTypeFtr;   // Controller Input Controller Type
-  uima::Feature ciTimeFtr;   // Controller Input Time
-  uima::Feature ciJnsFtr;    // Controller Input Joint Names
-  uima::Feature ciDesFtr;    // Controller Input Desired
-  uima::Feature ciActFtr;    // Controller Input Actual
-  uima::Feature ciErrFtr;    // Controller Input Error
+  uima::Feature jsTimeFtr;  // JointState time
+  uima::Feature jtpPosFtr;  // JointTrajectoryPoint positions
+  uima::Feature jtpEffFtr;  // JointTrajectoryPoint efforts
+  uima::Feature jtpVelFtr;  // JointTrajectoryPoint velocities
+  uima::Feature jtpAccFtr;  // JointTrajectoryPoint accelerations
+  uima::Feature ciTypeFtr;  // ControllerInput controllerType
+  uima::Feature ciTimeFtr;  // ControllerInput time
+  uima::Feature ciJnsFtr;   // ControllerInput jointNames
+  uima::Feature ciDesFtr;   // ControllerInput desired
+  uima::Feature ciActFtr;   // ControllerInput actual
+  uima::Feature ciErrFtr;   // ControllerInput error
 
   // Configuration Parameters
   std::string host;
   std::string database;
   std::vector<std::string> controllers;
-
-  mongo::DBClientConnection conn;
 
 
   /**
@@ -86,7 +85,7 @@ class ControllerAnnotator : public Annotator {
 
   /**
    * Create a Joint Trajectory Point Feature Structure from a mongo BSON object
-   * containing the fields position, effort velocity, and acelerations.
+   * containing the fields position, effort, velocity, and acelerations.
    *
    * @param  obj Source bson object.
    * @return Joint Trajectory Point with all the information from the object.
@@ -123,16 +122,19 @@ class ControllerAnnotator : public Annotator {
     log = &annotatorContext.getLogger();
     log->logMessage("ControllerAnnotator::initialize()");
 
+    // Host ***************************************************
     host = "localhost";
     if (annotatorContext.isParameterDefined("Host")) {
       annotatorContext.extractValue("Host", host);
     }
 
+    // Database ***********************************************
     database = "dummy1";
     if (annotatorContext.isParameterDefined("Database")) {
       annotatorContext.extractValue("Database", database);
     }
 
+    // Controllers ********************************************
     if (annotatorContext.isParameterDefined("Controllers")) {
       std::vector<icu::UnicodeString> tmpControllers;
       annotatorContext.extractValue("Controllers", tmpControllers);
@@ -142,12 +144,13 @@ class ControllerAnnotator : public Annotator {
       controllers.push_back("l_arm_controller_state");
     }
 
-    log->logMessage("Host: " + host + ", Database: " + database + ", "
-      "Controllers: " + utils::join(controllers, ", "));
+    log->logMessage("Host: " + host + ", "
+                    "Database: " + database + ", "
+                    "Controllers: " + utils::join(controllers, ", "));
 
     try {
       conn.connect(host);
-      log->logMessage("connected ok");
+      log->logMessage("Mongo connection established.");
     } catch (const mongo::DBException& e) {
       log->logError("caught " + e.toString());
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
@@ -186,7 +189,7 @@ class ControllerAnnotator : public Annotator {
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
     jtpPosFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
-    jtpEffFtr = JointTrajectoryPoint.getFeatureByBaseName("effort");
+    jtpEffFtr = JointTrajectoryPoint.getFeatureByBaseName("efforts");
     jtpVelFtr = JointTrajectoryPoint.getFeatureByBaseName("velocities");
     jtpAccFtr = JointTrajectoryPoint.getFeatureByBaseName("accelerations");
 
@@ -203,7 +206,6 @@ class ControllerAnnotator : public Annotator {
     ciActFtr  = ControllerInput.getFeatureByBaseName("actual");
     ciErrFtr  = ControllerInput.getFeatureByBaseName("error");
 
-    log->logMessage("ControllerAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 

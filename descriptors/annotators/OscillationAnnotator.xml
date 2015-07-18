@@ -8,7 +8,7 @@
   <annotatorImplementationName>OscillationAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Oscillation Annotator</name>
+    <name>OscillationAnnotator</name>
     <description>Annotates oscillation data.</description>
     <version>1.0</version>
     <vendor/>

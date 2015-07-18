@@ -8,7 +8,7 @@
   <annotatorImplementationName>SelfCollisionAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Self Collision Annotator</name>
+    <name>SelfCollisionAnnotator</name>
     <description>Annotates collisions of the robots own joints with each other.</description>
     <version>1.0</version>
     <vendor/>

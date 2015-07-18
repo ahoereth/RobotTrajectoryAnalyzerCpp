@@ -8,7 +8,7 @@
   <annotatorImplementationName>MovementAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Movement Annotator</name>
+    <name>MovementAnnotator</name>
     <description>Annotates movement data.</description>
     <version>1.0</version>
     <vendor>ahoereth</vendor>

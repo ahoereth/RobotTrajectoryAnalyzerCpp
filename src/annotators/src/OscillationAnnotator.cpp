@@ -8,18 +8,22 @@
 
 
 using uima::Annotator;  // required for MAKE_AE
-using uima::Feature;
 
 
 class OscillationAnnotator : public Annotator {
  private:
   uima::LogFacility* log;
-  uima::CAS* currentCas;
 
   uima::Type Movement;
   uima::Type PositiveMovement;
   uima::Type Oscillation;
 
+  uima::Feature movJnFtr;  // Movement jointName
+  uima::Feature pSpFtr;    // PositiveMovement startPosition
+  uima::Feature pEpFtr;    // PositiveMovement endPosition
+  uima::Feature oscJnFtr;  // Oscillation jointName
+
+  // Configuration Parameters
   float maxTimeVariance;
   float maxPositionVariance;
 
@@ -43,11 +47,13 @@ class OscillationAnnotator : public Annotator {
     log = &annotatorContext.getLogger();
     log->logMessage("OscillationAnnotator::initialize()");
 
+    // MaxTimeVariance ****************************************
     maxTimeVariance = 50;
     if (annotatorContext.isParameterDefined("MaxTimeVariance")) {
       annotatorContext.extractValue("MaxTimeVariance", maxTimeVariance);
     }
 
+    // MaxPositionVariance ************************************
     maxPositionVariance = 10;
     if (annotatorContext.isParameterDefined("MaxPositionVariance")) {
       annotatorContext.extractValue("MaxPositionVariance", maxPositionVariance);
@@ -55,7 +61,6 @@ class OscillationAnnotator : public Annotator {
 
     log->logMessage("MaxTimeVariance: " + utils::toString(maxTimeVariance) +
       ", MaxPositionVariance: " + utils::toString(maxPositionVariance));
-
     return UIMA_ERR_NONE;
   }
 
@@ -72,7 +77,7 @@ class OscillationAnnotator : public Annotator {
    * @return UIMA error type id - UIMA_ERR_NONE on success.
    */
   uima::TyErrorId typeSystemInit(const uima::TypeSystem& typeSystem) {
-    log->logMessage("OscillationAnnotator::typeSystemInit() begins");
+    log->logMessage("OscillationAnnotator::typeSystemInit()");
 
     // Movement ***********************************************
     Movement = typeSystem.getType("Movement");
@@ -80,6 +85,7 @@ class OscillationAnnotator : public Annotator {
       log->logError("Error getting Type object for Movement");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    movJnFtr = Movement.getFeatureByBaseName("jointName");
 
     // PositiveMovement ***********************************************
     PositiveMovement = typeSystem.getType("PositiveMovement");
@@ -87,6 +93,8 @@ class OscillationAnnotator : public Annotator {
       log->logError("Error getting Type object for PositiveMovement");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    pSpFtr = PositiveMovement.getFeatureByBaseName("startPosition");
+    pEpFtr = PositiveMovement.getFeatureByBaseName("endPosition");
 
     // Oscillation ***********************************************
     Oscillation = typeSystem.getType("Oscillation");
@@ -94,8 +102,8 @@ class OscillationAnnotator : public Annotator {
       log->logError("Error getting Type object for Oscillation");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    oscJnFtr = Oscillation.getFeatureByBaseName("jointName");
 
-    log->logMessage("OscillationAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
   }
 
@@ -125,15 +133,6 @@ class OscillationAnnotator : public Annotator {
   ) {
     log->logMessage("OscillationAnnotator::process() begins");
 
-    // Save cas for use in other member functions.
-    currentCas = &cas;
-
-    // Initialize reused features.
-    Feature movJnFtr = Movement.getFeatureByBaseName("jointName");
-    Feature oscJnFtr = Oscillation.getFeatureByBaseName("jointName");
-    Feature pSpFtr = PositiveMovement.getFeatureByBaseName("startPosition");
-    Feature pEpFtr = PositiveMovement.getFeatureByBaseName("endPosition");
-
     // Intialize the cas index and the movement index iterator.
     uima::FSIndexRepository& index = cas.getIndexRepository();
     uima::ANIndex pmIndex = cas.getAnnotationIndex(PositiveMovement);
@@ -152,6 +151,7 @@ class OscillationAnnotator : public Annotator {
       posDiffs.clear();
       timeDiffs.clear();
 
+      // For every positive move which is covered by this move..
       for (std::size_t i = 0, size = posMoves.size(); i < size; i++) {
         pMove = posMoves[i];
 
@@ -174,6 +174,7 @@ class OscillationAnnotator : public Annotator {
         osc = cas.createAnnotation(
           Oscillation, move.getBeginPosition(), move.getEndPosition());
         osc.setStringValue(oscJnFtr, move.getStringValue(movJnFtr));
+        // TODO: Osciallation frequency.
         index.addFS(osc);
       }
 

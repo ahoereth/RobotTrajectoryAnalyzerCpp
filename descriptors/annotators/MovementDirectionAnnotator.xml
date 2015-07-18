@@ -8,7 +8,7 @@
   <annotatorImplementationName>MovementDirectionAnnotator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Movement Direction Annotator</name>
+    <name>MovementDirectionAnnotator</name>
     <description>Annotates directional movement data.</description>
     <version>1.0</version>
     <vendor/>

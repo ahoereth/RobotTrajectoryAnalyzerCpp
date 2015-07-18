@@ -5,15 +5,21 @@
 
 
 using uima::Annotator;  // required for MAKE_AE
-using uima::Feature;
 
 
 class AccelerationAnnotator : public Annotator {
  private:
   uima::LogFacility* log;
+
   uima::Type JointState;
   uima::Type JointTrajectoryPoint;
   uima::Type Acceleration;
+
+  uima::Feature jsTimeFtr;  // JointState time
+  uima::Feature jsJtpFtr;   // JointState jointTrajectoryPoint
+  uima::Feature jtpVelFtr;  // JointTrajectoryPoint velocities
+  uima::Feature accValFtr;  // Acceleration values
+
 
  public:
   /** Constructor */
@@ -57,6 +63,8 @@ class AccelerationAnnotator : public Annotator {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    jsTimeFtr = JointState.getFeatureByBaseName("time");
+    jsJtpFtr  = JointState.getFeatureByBaseName("jointTrajectoryPoint");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -64,6 +72,7 @@ class AccelerationAnnotator : public Annotator {
       log->logError("Error getting Type object for JointTrajectoryPoint");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    jtpVelFtr = JointTrajectoryPoint.getFeatureByBaseName("velocities");
 
     // Acceleration *******************************************
     Acceleration = typeSystem.getType("Acceleration");
@@ -71,6 +80,7 @@ class AccelerationAnnotator : public Annotator {
       log->logError("Error getting Type object for Acceleration");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    accValFtr = Acceleration.getFeatureByBaseName("values");
 
     return UIMA_ERR_NONE;
   }
@@ -101,29 +111,23 @@ class AccelerationAnnotator : public Annotator {
   ) {
     log->logMessage("AccelerationAnnotator::process() begins");
 
-    // Initialize features.
-    Feature timeFtr = JointState.getFeatureByBaseName("time");
-    Feature jtpFtr = JointState.getFeatureByBaseName("jointTrajectoryPoint");
-    Feature jtpVelFtr = JointTrajectoryPoint.getFeatureByBaseName("velocities");
-    Feature accVelFtr = Acceleration.getFeatureByBaseName("value");
-
     // Intialize indices and the index iterator.
     uima::FSIndexRepository& index = cas.getIndexRepository();
     uima::ANIndex jsIndex = cas.getAnnotationIndex(JointState);
     uima::ANIterator jsIter = jsIndex.iterator();
 
     // Initialize reused variables for the loop.
-    uima::ListFS accelerations = cas.createListFS();
-    uima::FeatureStructure js, jtp;
+    uima::AnnotationFS js, acceleration;
+    uima::FeatureStructure jtp;
     uima::DoubleArrayFS velocitiesPrev, velocitiesNext, values;
-    int timePrev, timeNext;
+    int timePrev, timeNext, pos;
     double velocityDiff, timeDiff, accelerationValue;
 
     if (jsIter.isValid()) {
       // Get initial values.
       js = jsIter.get();
-      jtp = js.getFSValue(jtpFtr);
-      timePrev = js.getIntValue(timeFtr);
+      jtp = js.getFSValue(jsJtpFtr);
+      timePrev = js.getIntValue(jsTimeFtr);
       velocitiesPrev = jtp.getDoubleArrayFSValue(jtpVelFtr);
 
       // Loop through all consecutive joint states.
@@ -131,8 +135,8 @@ class AccelerationAnnotator : public Annotator {
       while (jsIter.isValid()) {
         // Get consecutive values.
         js = jsIter.get();
-        jtp = js.getFSValue(jtpFtr);
-        timeNext = js.getIntValue(timeFtr);
+        jtp = js.getFSValue(jsJtpFtr);
+        timeNext = js.getIntValue(jsTimeFtr);
         velocitiesNext = jtp.getDoubleArrayFSValue(jtpVelFtr);
         values = cas.createDoubleArrayFS(velocitiesNext.size());
 
@@ -145,14 +149,14 @@ class AccelerationAnnotator : public Annotator {
         }
 
         // Create acceleration feature structure and save to annotation index.
-        uima::FeatureStructure acceleration = cas.createFS(Acceleration);
-        acceleration.setFSValue(accVelFtr, values);
-        accelerations.addLast(acceleration);
+        pos = js.getBeginPosition();
+        acceleration = cas.createAnnotation(Acceleration, pos, pos);
+        acceleration.setFSValue(accValFtr, values);
         index.addFS(acceleration);
 
         // Remember values and move to next joint state.
         velocitiesPrev = jtp.getDoubleArrayFSValue(jtpVelFtr);
-        timePrev = js.getIntValue(timeFtr);
+        timePrev = js.getIntValue(jsTimeFtr);
         jsIter.moveToNext();
       }
     }

@@ -31,8 +31,7 @@
         </featureDescription>
 
         <featureDescription>
-          <!-- "efforts"? -->
-          <name>effort</name>
+          <name>efforts</name>
           <description/>
           <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
         </featureDescription>

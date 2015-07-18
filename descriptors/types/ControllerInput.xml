@@ -15,7 +15,6 @@
         <featureDescription>
           <name>time</name>
           <description/>
-          <!-- Same type as time from joint state. -->
           <rangeTypeName>uima.cas.Integer</rangeTypeName>
         </featureDescription>
 

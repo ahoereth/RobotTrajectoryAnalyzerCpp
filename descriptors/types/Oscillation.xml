@@ -17,6 +17,7 @@
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
 
+        <!-- NOTE: Currently unused. -->
         <featureDescription>
           <name>frequency</name>
           <description/>

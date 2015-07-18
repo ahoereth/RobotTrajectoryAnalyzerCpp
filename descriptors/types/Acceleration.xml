@@ -13,7 +13,7 @@
       <features>
 
         <featureDescription>
-          <name>value</name>
+          <name>values</name>
           <description/>
           <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
         </featureDescription>

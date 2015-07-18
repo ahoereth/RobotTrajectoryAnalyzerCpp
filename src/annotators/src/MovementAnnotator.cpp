@@ -11,7 +11,6 @@
 
 
 using uima::Annotator;  // required for MAKE_AE
-using uima::Feature;
 
 
 class MovementAnnotator : public Annotator {
@@ -23,6 +22,13 @@ class MovementAnnotator : public Annotator {
   uima::Type JointTrajectoryPoint;
   uima::Type Movement;
 
+  uima::Feature jsSeqFtr;   // JointState seq
+  uima::Feature jsJtpFtr;   // JointState jointTrajectoryPoint
+  uima::Feature jsNameFtr;  // JointState jointNames
+  uima::Feature jtpPosFtr;  // JointTrajectoryPoint positions
+  uima::Feature mvNameFtr;  // Movement jointName
+
+  // Configuration Parameters
   float minVariance;
   std::size_t observedJointStates;
 
@@ -46,11 +52,13 @@ class MovementAnnotator : public Annotator {
     log = &annotatorContext.getLogger();
     log->logMessage("MovementAnnotator::initialize()");
 
+    // MinVariance ********************************************
     minVariance = 0.000003f;
     if (annotatorContext.isParameterDefined("MinVariance")) {
       annotatorContext.extractValue("MinVariance", minVariance);
     }
 
+    // ObservedJointStates ************************************
     observedJointStates = 10;
     if (annotatorContext.isParameterDefined("ObservedJointStates")) {
       annotatorContext.extractValue("ObservedJointStates", observedJointStates);
@@ -83,6 +91,9 @@ class MovementAnnotator : public Annotator {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    jsSeqFtr  = JointState.getFeatureByBaseName("seq");
+    jsJtpFtr  = JointState.getFeatureByBaseName("jointTrajectoryPoint");
+    jsNameFtr = JointState.getFeatureByBaseName("jointNames");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -90,6 +101,7 @@ class MovementAnnotator : public Annotator {
       log->logError("Error getting Type object for JointTrajectoryPoint");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    jtpPosFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
 
     // Movement ***********************************************
     Movement = typeSystem.getType("Movement");
@@ -97,6 +109,7 @@ class MovementAnnotator : public Annotator {
       log->logError("Error getting Type object for Movement");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
+    mvNameFtr = Movement.getFeatureByBaseName("jointName");
 
     log->logMessage("MovementAnnotator::typeSystemInit() ends");
     return UIMA_ERR_NONE;
@@ -155,7 +168,7 @@ class MovementAnnotator : public Annotator {
     const std::size_t& to
   ) {
     uima::AnnotationFS move = currentCas->createAnnotation(Movement, from, to);
-    move.setStringValue(Movement.getFeatureByBaseName("jointName"), name);
+    move.setStringValue(mvNameFtr, name);
     return move;
   }
 
@@ -177,13 +190,6 @@ class MovementAnnotator : public Annotator {
     // Save cas for use in other member functions.
     currentCas = &cas;
 
-    // Initialize features.
-    Feature seqFtr = JointState.getFeatureByBaseName("seq");
-    Feature jtpFtr = JointState.getFeatureByBaseName("jointTrajectoryPoint");
-    Feature nameFtr = JointState.getFeatureByBaseName("name");
-    Feature posFtr = JointTrajectoryPoint.getFeatureByBaseName("positions");
-    Feature jnFtr = Movement.getFeatureByBaseName("jointName");
-
     // Intialize indices and the index iterator.
     uima::FSIndexRepository& index = cas.getIndexRepository();
     uima::ANIterator jsIter = cas.getAnnotationIndex(JointState).iterator();
@@ -192,7 +198,7 @@ class MovementAnnotator : public Annotator {
     uima::AnnotationFS js = jsIter.get(), move;
     uima::FeatureStructure jtp;
     uima::StringArrayFS names;
-    std::size_t size = js.getStringArrayFSValue(nameFtr).size();
+    std::size_t size = js.getStringArrayFSValue(jsNameFtr).size();
     uima::ArrayFS moves = cas.createArrayFS(size);
     std::list<uima::DoubleArrayFS> prevPositions;
     std::vector<bool> movingStates(size, false);
@@ -205,10 +211,10 @@ class MovementAnnotator : public Annotator {
     // Loop through joint states.
     while (jsIter.isValid()) {
       js = jsIter.get();
-      jtp = js.getFSValue(jtpFtr);
-      seq = js.getIntValue(seqFtr);
-      names = js.getStringArrayFSValue(nameFtr);
-      prevPositions.push_back(jtp.getDoubleArrayFSValue(posFtr));
+      jtp = js.getFSValue(jsJtpFtr);
+      seq = js.getIntValue(jsSeqFtr);
+      names = js.getStringArrayFSValue(jsNameFtr);
+      prevPositions.push_back(jtp.getDoubleArrayFSValue(jtpPosFtr));
 
       // If the list is too long pop the first element.
       if (prevPositions.size() > observedJointStates) {

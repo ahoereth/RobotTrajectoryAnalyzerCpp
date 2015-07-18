@@ -8,7 +8,7 @@
   <annotatorImplementationName>JointStatePopulator</annotatorImplementationName>
 
   <analysisEngineMetaData>
-    <name>Joint State Populator</name>
+    <name>JointStatePopulator</name>
     <description>Populates the CAS with joint state data.</description>
     <version>1.0</version>
     <vendor>ahoereth</vendor>
@@ -43,14 +43,14 @@
       <nameValuePair>
         <name>Host</name>
         <value>
-          <!-- AE might overwrite this -->
+          <!-- pipeline might overwrite this -->
           <string>localhost</string>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>Database</name>
         <value>
-          <!-- AE might overwrite this -->
+          <!-- pipeline might overwrite this -->
           <string>dummy1</string>
         </value>
       </nameValuePair>

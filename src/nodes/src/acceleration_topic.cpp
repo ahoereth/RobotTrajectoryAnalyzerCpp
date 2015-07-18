@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   // Get required iterators.
   AnnotationIterator accIter = gateway.getAnnotationIterator("Acceleration");
   AnnotationIterator jsIter = gateway.getAnnotationIterator("JointState");
-  std::vector<std::string> jointnames = jsIter.getStringVector("name");
+  std::vector<std::string> jointnames = jsIter.getStringVector("jointNames");
   std::vector<int> indices;
 
   // Handle just specific joint names if requested.
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   dimensions[0].label = "accelerations";  // Maybe list the joint names here?
   dimensions[0].stride = 1;
   dimensions[0].size = indices.size() == 0 ?
-    accIter.getDoubleVector("value").size() : indices.size();
+    accIter.getDoubleVector("values").size() : indices.size();
   layout.dim = dimensions;
   msg.layout = layout;
 
@@ -95,9 +95,9 @@ int main(int argc, char* argv[]) {
 
     msg.data.clear();
     if (indices.size() == 0) {  // All joints!
-      msg.data = accIter.getDoubleVector("value");
+      msg.data = accIter.getDoubleVector("values");
     } else {  // Just specific joints.
-      std::vector<double> values = accIter.getDoubleVector("value");
+      std::vector<double> values = accIter.getDoubleVector("values");
       for (int i = 0, size = indices.size(); i < size; i++) {
         msg.data.push_back(values[indices[i]]);
       }
