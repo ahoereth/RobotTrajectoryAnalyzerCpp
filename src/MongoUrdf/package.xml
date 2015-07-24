@@ -1,17 +1,17 @@
 <package>
-  <name>rta_annotators</name>
+  <name>mongourdf</name>
   <maintainer email="ahoereth@uos.de">Alexander Höreth</maintainer>
-  <description>Robot Trajectory Analyzer Annotators</description>
+  <description>Robot Trajectory Analyzer ROS Nodes</description>
   <version>0.0.0</version>
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>uimacpp</build_depend>
+  <build_depend>cmake_modules</build_depend>
+  <build_depend>roscpp</build_depend>
   <build_depend>urdf</build_depend>
-  <build_depend>mongoclient</build_depend>
   <build_depend>uimacppext</build_depend>
-  <build_depend>mongourdf</build_depend>
 
+  <run_depend>roscpp</run_depend>
   <run_depend>urdf</run_depend>
 </package>

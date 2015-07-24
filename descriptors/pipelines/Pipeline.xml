@@ -10,6 +10,9 @@
     <delegateAnalysisEngine key="JointStatePopulator">
       <import location="../annotators/JointStatePopulator.xml"/>
     </delegateAnalysisEngine>
+      <delegateAnalysisEngine key="RobotStateAnnotator">
+        <import location="../annotators/RobotStateAnnotator.xml"/>
+      </delegateAnalysisEngine>
     <delegateAnalysisEngine key="AccelerationAnnotator">
       <import location="../annotators/AccelerationAnnotator.xml"/>
     </delegateAnalysisEngine>
@@ -68,6 +71,7 @@
     <flowConstraints>
       <fixedFlow>
         <node>JointStatePopulator</node>
+        <node>RobotStateAnnotator</node>
         <node>AccelerationAnnotator</node>
         <node>MovementControllerPipeline</node>
         <node>CollisionPipeline</node>

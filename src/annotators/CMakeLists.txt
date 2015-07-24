@@ -5,9 +5,11 @@ project(rta_annotators)
 ## Dependencies                                                               ##
 ################################################################################
 find_package(catkin REQUIRED)
+find_package(urdf REQUIRED)
 find_package(uimacpp REQUIRED)
 find_package(mongoclient REQUIRED)
 find_package(uimacppext REQUIRED)
+find_package(mongourdf REQUIRED)
 
 ################################################################################
 ## Catkin Configuration                                                       ##
@@ -23,6 +25,7 @@ include_directories(
   ${uimacpp_INCLUDE_DIRS}
   ${mongoclient_INCLUDE_DIRS}
   ${uimacppext_INCLUDE_DIRS}
+  ${mongourdf_INCLUDE_DIRS}
   include
 )
 
@@ -44,6 +47,9 @@ target_link_libraries(JointStatePopulator
   ${Boost_LIBRARIES}
   uimautils)
 
+add_uima_annotator(RobotStateAnnotator src/RobotStateAnnotator.cpp)
+target_link_libraries(RobotStateAnnotator uimautils MongoUrdf)
+
 add_uima_annotator(AccelerationAnnotator src/AccelerationAnnotator.cpp)
 target_link_libraries(AccelerationAnnotator uimautils)
 
@@ -58,8 +64,10 @@ target_link_libraries(OscillationAnnotator uimautils)
 
 add_uima_annotator(ControllerAnnotator src/ControllerAnnotator.cpp)
 target_link_libraries(ControllerAnnotator
+# See https://github.com/ahoereth/RobotTrajectoryAnalyzerCpp/issues/3
 #  ${mongoclient_LIBRARIES}
 #  ${Boost_LIBRARIES}
+  ${urdf_LIBRARIES}
   uimautils)
 
 add_uima_annotator(ErrorAnnotator src/ErrorAnnotator.cpp)

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  descriptors/annotators/RobotStateAnnotator.xml
+-->
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>RobotStateAnnotator</annotatorImplementationName>
+
+  <analysisEngineMetaData>
+    <name>RobotStateAnnotator</name>
+    <description>Annotates robot state data.</description>
+    <version>1.0</version>
+    <vendor/>
+
+    <!-- Configuration Parameter Definitions -->
+    <configurationParameters>
+      <configurationParameter>
+        <name>Host</name>
+        <description>Mongo DB Host URL.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RobotDatabase</name>
+        <description>Name of the Mongo DB containing the URDF information.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>JointsCollection</name>
+        <description>Collection which contains the joints URDF data.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LinksCollection</name>
+        <description>Collection which contains the links URDF data.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <!-- Configuration Parameter Values - might be overwritten by AE -->
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>Host</name>
+        <value>
+          <!-- pipeline might overwrite this -->
+          <string>localhost</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>RobotDatabase</name>
+        <value>
+          <string>pr2</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>JointsCollection</name>
+        <value>
+          <string>robot_joints</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>LinksCollection</name>
+        <value>
+          <string>robot_links</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <!-- TypeSystem Definition -->
+    <typeSystemDescription>
+      <imports>
+        <import location="../types/JointState.xml"/>
+        <import location="../types/DistanceToLimit.xml"/>
+        <import location="../types/TaskSpacePosition.xml"/>
+      </imports>
+    </typeSystemDescription>
+
+    <!-- Annotator Capabilities -->
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">JointState</type>
+        </inputs>
+
+        <outputs>
+          <type allAnnotatorFeatures="true">DistanceToLimit</type>
+          <type allAnnotatorFeatures="true">TaskSpacePosition</type>
+        </outputs>
+      </capability>
+    </capabilities>
+  </analysisEngineMetaData>
+</analysisEngineDescription>
