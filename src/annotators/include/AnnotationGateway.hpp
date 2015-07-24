@@ -10,7 +10,7 @@
 #include "unicode/unistr.h"  // UnicodeString
 #include "AnnotationIterator.hpp"
 #include "StdCoutLogger.hpp"
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 /**

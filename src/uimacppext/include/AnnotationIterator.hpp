@@ -9,7 +9,7 @@
 #include <vector>
 #include "uima/api.hpp"
 #include "unicode/unistr.h"  // UnicodeString
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 /**

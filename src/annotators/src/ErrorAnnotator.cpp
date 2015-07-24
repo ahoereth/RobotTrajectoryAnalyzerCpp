@@ -6,7 +6,7 @@
 #include <cstdlib>  // size_t, abs
 #include "uima/api.hpp"
 #include "unicode/unistr.h"  // UnicodeString
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 using uima::Annotator;  // required for MAKE_AE

@@ -6,7 +6,7 @@
 #include "uima/api.hpp"
 #include "unicode/unistr.h"  // UnicodeString
 #include "AnnotationIterator.hpp"
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 AnnotationIterator::AnnotationIterator(

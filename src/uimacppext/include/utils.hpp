@@ -10,16 +10,16 @@
 #include <sstream>  // ostringstream, istringstream
 #include <cstdlib>  // size_t
 #include <cmath>  // pow
+#include <algorithm>  // transform
 #include "unicode/unistr.h"  // UnicodeString
-#include "uima/api.hpp"
+
 
 /**
- * General C++ and UIMA utility functions.
+ * General C++ utility functions.
  */
 namespace utils {
 
 
-// General C++ utility functions.
 int toInt(const std::string& str);
 std::vector<int> toInt(const std::vector<std::string>& vec);
 std::string toString(double x);
@@ -34,23 +34,7 @@ std::string join(const std::vector<std::string>& src, const std::string& sep);
 int indexOf(const std::vector<std::string>& vec, const std::string& val);
 double calculateMean(const std::vector<double>& vec);
 double calculateVariance(const std::vector<double>& vec);
-
-
-// UIMACPP specific utility functions.
-std::vector<double> toVector(const uima::DoubleArrayFS& fs);
-std::vector<std::string> toVector(const uima::StringArrayFS& fs);
-std::vector<uima::AnnotationFS> selectCovered(
-  const uima::ANIndex& index,
-  const uima::AnnotationFS& fs
-);
-void checkError(
-  const uima::TyErrorId& errorId,
-  const uima::AnalysisEngine& engine
-);
-void checkError(
-  const uima::ErrorInfo& errInfo,
-  const uima::AnalysisEngine& engine
-);
+std::string toLower(std::string str);
 
 
 }  // namespace utils

@@ -8,6 +8,7 @@
 #include "unicode/unistr.h"  // UnicodeString
 #include "uima/api.hpp"
 #include "utils.hpp"
+#include "uimautils.hpp"
 
 
 namespace utils {
@@ -50,6 +51,30 @@ std::vector<std::string> toVector(
   }
 
   return result;
+}
+
+
+uima::StringArrayFS toStringArrayFS(
+  uima::CAS& cas,
+  const std::vector<std::string>& vec
+) {
+  uima::StringArrayFS fs = cas.createStringArrayFS(vec.size());
+  for (std::size_t i = 0; i < vec.size(); ++i) {
+    fs.set(i, toUS(vec[i]));
+  }
+  return fs;
+}
+
+
+uima::DoubleArrayFS toDoubleArrayFS(
+  uima::CAS& cas,
+  const std::vector<double>& vec
+) {
+  uima::DoubleArrayFS fs = cas.createDoubleArrayFS(vec.size());
+  for (std::size_t i = 0; i < vec.size(); ++i) {
+    fs.set(i, vec[i]);
+  }
+  return fs;
 }
 
 

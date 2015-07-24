@@ -7,7 +7,7 @@
 #include "uima/api.hpp"
 #include "mongo/client/dbclient.h"
 #include "unicode/unistr.h"  // UnicodeString
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 using uima::Annotator;  // required for MAKE_AE
@@ -109,7 +109,10 @@ class ControllerAnnotator : public Annotator {
 
 
   /** Destructor */
-  ~ControllerAnnotator(void) {}
+  ~ControllerAnnotator(void) {
+    std::cout << "ControllerAnnotator - mongo shutdown" << std::endl;
+    mongo::client::shutdown();
+  }
 
 
   /**

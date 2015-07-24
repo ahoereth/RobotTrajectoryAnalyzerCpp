@@ -7,6 +7,7 @@
 #include <sstream>  // ostringstream, istringstream
 #include <cstdlib>  // size_t
 #include <cmath>  // pow
+#include <algorithm>  // transform
 #include "unicode/unistr.h"  // UnicodeString
 #include "utils.hpp"
 
@@ -222,6 +223,18 @@ double calculateVariance(
     variance += pow(mean - vec[i], 2.0) / size;
   }
   return variance;
+}
+
+
+/**
+ * Converts a given string to lowercase.
+ *
+ * @param  {std::string} str UPPERcase string.
+ * @return {std::string} lowercase string.
+ */
+std::string toLower(std::string str) {
+  std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+  return str;
 }
 
 

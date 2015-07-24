@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>  // size_t
 #include "uima/api.hpp"
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 using uima::Annotator;  // required for MAKE_AE

@@ -6,7 +6,7 @@
 #include <cstdlib>  // size_t
 #include "uima/api.hpp"
 #include "mongo/client/dbclient.h"
-#include "utils.hpp"
+#include "uimautils.hpp"
 
 
 using uima::Annotator;  // required for MAKE_AE
@@ -87,7 +87,10 @@ class JointStatePopulator : public Annotator {
 
 
   /** Destructor */
-  ~JointStatePopulator(void) {}
+  ~JointStatePopulator(void) {
+    std::cout << "JointStatePopulator - mongo shutdown" << std::endl;
+    mongo::client::shutdown();
+  }
 
 
   /**
