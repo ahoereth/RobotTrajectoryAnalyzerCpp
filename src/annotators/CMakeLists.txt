@@ -43,9 +43,8 @@ endmacro(add_uima_annotator)
 ################################################################################
 add_uima_annotator(JointStatePopulator src/JointStatePopulator.cpp)
 target_link_libraries(JointStatePopulator
-  ${mongoclient_LIBRARIES}
-  ${Boost_LIBRARIES}
-  uimautils)
+  uimautils
+  MongoUrdf)
 
 add_uima_annotator(RobotStateAnnotator src/RobotStateAnnotator.cpp)
 target_link_libraries(RobotStateAnnotator uimautils MongoUrdf)

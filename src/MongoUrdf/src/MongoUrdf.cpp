@@ -8,8 +8,13 @@
 #include "mongo/client/dbclient.h"
 #include "urdf/model.h"
 #include "utils.hpp"
+#include "ModelState.hpp"
+#include "JointState.hpp"
 #include "MongoUrdf.hpp"
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// Local utility functions
 
 /**
  * Generates a space seperated concatenation of coordinates given as a
@@ -37,43 +42,53 @@ std::string mongoCoordinatesToString(
 }
 
 
-/** Destructor */
-MongoUrdf::~MongoUrdf() {
-  mongo::client::shutdown();
+////////////////////////////////////////////////////////////////////////////////
+/// Static MongoUrdf class members
+
+/**
+ * Utility function for extracting the inertial origin position information
+ * from a link into an easy to work with vector.
+ *
+ * @param link Source URDF link element.
+ * @param Result verctor.
+ */
+std::vector<double> MongoUrdf::getPosition(boost::shared_ptr<urdf::Link> link) {
+  urdf::Vector3 pos = link->inertial->origin.position;
+  std::vector<double> vec(3);
+  vec[0] = pos.x;
+  vec[1] = pos.y;
+  vec[2] = pos.z;
+  return vec;
 }
 
+
+/**
+ * Utility function for extracting the inertial origin rotation information
+ * from a link into an easy to work with vector.
+ *
+ * @param link Source URDF link element.
+ * @param Result verctor.
+ */
+std::vector<double> MongoUrdf::getRotation(boost::shared_ptr<urdf::Link> link) {
+  urdf::Rotation rotation = link->inertial->origin.rotation;
+  std::vector<double> vec(3);
+  rotation.getRPY(vec[0], vec[1], vec[2]);
+  return vec;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// Public MongoUrdf class members
 
 /**
  * Constructor. Initialize the mongo connection, parse the data and create
  * the URDF model.
  */
-MongoUrdf::MongoUrdf(
-  const std::string& host,
-  const std::string& database,
-  const std::string& linksCollection,
-  const std::string& jointsCollection
-) : _host(host),
-    _database(database),
-    _linksCollection(linksCollection),
-    _jointsCollection(jointsCollection) {
+MongoUrdf::MongoUrdf(const std::string& host) : _host(host) {
   mongo::client::initialize();
 
   try {
-    conn.connect(_host);
-
-    // Create the XML document.
-    TiXmlDocument doc;
-    TiXmlElement* root = new TiXmlElement("robot");
-    root->SetAttribute("name", "test_robot");
-    doc.LinkEndChild(root);
-    parseLinks(root);
-    parseJoints(root);
-    doc.SaveFile("test_robot.xml"); // For reference.
-    TiXmlPrinter printer;
-    doc.Accept(&printer);
-
-    // Create the model.
-    _model.initString(printer.Str());
+    _conn.connect(_host);
   } catch (const mongo::DBException& e) {
     std::cout << "caught " + e.toString() << std::endl;
     exit(1);
@@ -81,14 +96,113 @@ MongoUrdf::MongoUrdf(
 }
 
 
+/** Destructor */
+MongoUrdf::~MongoUrdf() {
+  mongo::client::shutdown();
+}
+
+
+/**
+ * Build the robot model from given database collections.
+ *
+ * @see http://wiki.ros.org/urdf/XML/model
+ * @param  database
+ * @param  linksCollection
+ * @param  jointsCollection
+ * @return Valid URDF robot model.
+ */
+const urdf::Model MongoUrdf::getModel(
+  const std::string& database,
+  const std::string& linksCollection,
+  const std::string& jointsCollection
+) {
+  // Create the XML document.
+  TiXmlDocument doc;
+  TiXmlElement* root = new TiXmlElement("robot");
+  root->SetAttribute("name", "test_robot");
+  doc.LinkEndChild(root);
+
+  // Query MongoDB and parse data.
+  parseLinks(root, database, linksCollection);
+  parseJoints(root, database, jointsCollection);
+
+  // Save data and initialize printer.
+  doc.SaveFile("test_robot.xml"); // For reference.
+  TiXmlPrinter printer;
+  doc.Accept(&printer);
+
+  // Create the model.
+  urdf::Model model;
+  model.initString(printer.Str());
+  return model;
+}
+
+
+/**
+ * Generate the robot model states.
+ *
+ * @see http://wiki.ros.org/urdf/XML/model_state
+ * @param database
+ * @param collection
+ * @return Vector of URDF model states.
+ */
+const std::vector<ModelState> MongoUrdf::getModelStates(
+  const std::string& database,
+  const std::string& collection
+) {
+  // Result vector which will grow while parsing data.
+  std::vector<ModelState> modelStates;
+
+  // Reusables.
+  std::auto_ptr<mongo::DBClientCursor> cursor;
+  std::vector<mongo::BSONElement> names, positions, velocities, efforts;
+  mongo::BSONObj obj, header;
+
+  // Query mongo db and parse results.
+  cursor = _conn.query(database + "." + collection, mongo::BSONObj());
+  while (cursor->more()) {
+    obj = cursor->next();
+    header = obj.getObjectField("header");
+
+    ModelState modelState =
+      ModelState("pr2", header.getField("stamp").Date().asInt64());
+
+    names      = obj.getField("name").Array();
+    positions  = obj.getField("position").Array();
+    velocities = obj.getField("velocity").Array();
+    efforts    = obj.getField("effort").Array();
+
+    for (std::size_t i = 0, size = names.size(); i < size; ++i) {
+      JointState jointState = JointState(names[i].String());
+      jointState.position = positions[i].Double();
+      jointState.velocity = velocities[i].Double();
+      jointState.effort   = efforts[i].Double();
+      // obj.getField("frame_id");  // ?
+      modelState.addJointState(jointState);
+    }
+
+    modelStates.push_back(modelState);
+  }
+
+  return modelStates;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// Private MongoUrdf class members
+
 /**
  * Parse the links mongo collection into URDF link elements.
  *
  * @param root The document root XML element to insert the link elements into.
  */
-void MongoUrdf::parseLinks(TiXmlElement* root) {
-  std::auto_ptr<mongo::DBClientCursor> cursor =
-    conn.query(_database + "." + _linksCollection, mongo::BSONObj());
+void MongoUrdf::parseLinks(
+  TiXmlElement* root,
+  const std::string& database,
+  const std::string& collection
+) {
+  std::auto_ptr<mongo::DBClientCursor> cursor;
+  cursor = _conn.query(database + "." + collection, mongo::BSONObj());
 
   mongo::BSONObj obj;
 
@@ -130,9 +244,13 @@ void MongoUrdf::parseLinks(TiXmlElement* root) {
  *
  * @param root The document root XML element to insert the joint elements into.
  */
-void MongoUrdf::parseJoints(TiXmlElement* root) {
-  std::auto_ptr<mongo::DBClientCursor> cursor =
-    conn.query(_database + "." + _jointsCollection, mongo::BSONObj());
+void MongoUrdf::parseJoints(
+  TiXmlElement* root,
+  const std::string& database,
+  const std::string& collection
+) {
+  std::auto_ptr<mongo::DBClientCursor> cursor;
+  cursor = _conn.query(database + "." + collection, mongo::BSONObj());
 
   mongo::BSONObj obj;
 
@@ -168,36 +286,4 @@ void MongoUrdf::parseJoints(TiXmlElement* root) {
     axis->SetAttribute("xyz", mongoCoordinatesToString(obj.getField("axis")));
     joint->LinkEndChild(axis);
   }
-}
-
-
-/**
- * Utility function for extracting the inertial origin position information
- * from a link into an easy to work with vector.
- *
- * @param link Source URDF link element.
- * @param Result verctor.
- */
-std::vector<double> MongoUrdf::getPosition(boost::shared_ptr<urdf::Link> link) {
-  urdf::Vector3 pos = link->inertial->origin.position;
-  std::vector<double> vec(3);
-  vec[0] = pos.x;
-  vec[1] = pos.y;
-  vec[2] = pos.z;
-  return vec;
-}
-
-
-/**
- * Utility function for extracting the inertial origin rotation information
- * from a link into an easy to work with vector.
- *
- * @param link Source URDF link element.
- * @param Result verctor.
- */
-std::vector<double> MongoUrdf::getRotation(boost::shared_ptr<urdf::Link> link) {
-  urdf::Rotation rotation = link->inertial->origin.rotation;
-  std::vector<double> vec(3);
-  rotation.getRPY(vec[0], vec[1], vec[2]);
-  return vec;
 }

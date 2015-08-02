@@ -22,7 +22,6 @@ class MovementAnnotator : public Annotator {
   uima::Type JointTrajectoryPoint;
   uima::Type Movement;
 
-  uima::Feature jsSeqFtr;   // JointState seq
   uima::Feature jsJtpFtr;   // JointState jointTrajectoryPoint
   uima::Feature jsNameFtr;  // JointState jointNames
   uima::Feature jtpPosFtr;  // JointTrajectoryPoint positions
@@ -91,7 +90,6 @@ class MovementAnnotator : public Annotator {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
-    jsSeqFtr  = JointState.getFeatureByBaseName("seq");
     jsJtpFtr  = JointState.getFeatureByBaseName("jointTrajectoryPoint");
     jsNameFtr = JointState.getFeatureByBaseName("jointNames");
 
@@ -203,7 +201,7 @@ class MovementAnnotator : public Annotator {
     std::list<uima::DoubleArrayFS> prevPositions;
     std::vector<bool> movingStates(size, false);
     std::vector<double> variances;
-    std::size_t seq;
+    std::size_t id;
 
     // Init log stream.
     uima::LogStream& logstream = log->getLogStream(uima::LogStream::EnMessage);
@@ -212,7 +210,7 @@ class MovementAnnotator : public Annotator {
     while (jsIter.isValid()) {
       js = jsIter.get();
       jtp = js.getFSValue(jsJtpFtr);
-      seq = js.getIntValue(jsSeqFtr);
+      id = js.getBeginPosition();
       names = js.getStringArrayFSValue(jsNameFtr);
       prevPositions.push_back(jtp.getDoubleArrayFSValue(jtpPosFtr));
 
@@ -235,7 +233,7 @@ class MovementAnnotator : public Annotator {
         icu::UnicodeString name = names.get(i).getBuffer();
 
         if (1 == move.getBeginPosition()) {  // Initial iteration.
-          moves.set(i, moveAnnotation(name, seq, seq));
+          moves.set(i, moveAnnotation(name, id, id));
         } else {  // Consecutive iterations.
           bool moving = (variances[i] >= minVariance);
 
@@ -244,13 +242,13 @@ class MovementAnnotator : public Annotator {
              (movingStates[i] && !moving)      // was    + isn't
           ) {
             index.addFS(move);
-            moves.set(i, moveAnnotation(name, seq, seq));
+            moves.set(i, moveAnnotation(name, id, id));
 
           } else if (                         // Movement state:
             (!movingStates[i] && !moving) ||  // wasn't + isn't
              (movingStates[i] &&  moving)     // was    + is
           ) {
-            moves.set(i, moveAnnotation(name, move.getBeginPosition(), seq));
+            moves.set(i, moveAnnotation(name, move.getBeginPosition(), id));
           }
         }
       }

@@ -31,12 +31,13 @@ include_directories(
 ################################################################################
 ## Libraries                                                                  ##
 ################################################################################
-#add_library(MongoUrdf SHARED src/MongoUrdf.cpp)
-add_library(MongoUrdf SHARED src/MongoUrdf.cpp)
+add_library(MongoUrdf SHARED
+  src/JointState.cpp
+  src/ModelState.cpp
+  src/MongoUrdf.cpp)
 target_link_libraries(MongoUrdf
-# See https://github.com/ahoereth/RobotTrajectoryAnalyzerCpp/issues/3
-#  ${mongoclient_LIBRARIES}
-#  ${Boost_LIBRARIES}
+  ${mongoclient_LIBRARIES}
+  ${Boost_LIBRARIES}
   ${urdf_LIBRARIES}
   ${TinyXML_LIBRARIES}
   uimautils)

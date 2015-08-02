@@ -9,8 +9,10 @@
 #include <vector>
 #include "boost/smart_ptr.hpp"
 #include "mongo/client/dbclient.h"
-#include "tinyxml.h"
+#include "./tinyxml.h"
 #include "urdf/model.h"
+#include "ModelState.hpp"
+#include "JointState.hpp"
 
 
 class MongoUrdf {
@@ -18,23 +20,27 @@ class MongoUrdf {
   static std::vector<double> getPosition(boost::shared_ptr<urdf::Link> link);
   static std::vector<double> getRotation(boost::shared_ptr<urdf::Link> link);
 
-  MongoUrdf(const std::string& host,
-            const std::string& database,
-            const std::string& linksCollection,
-            const std::string& jointsCollection);
+  explicit MongoUrdf(const std::string& host);
   ~MongoUrdf(void);
-  const urdf::Model& getModel() { return _model; }
-
+  const urdf::Model getModel(
+    const std::string& database = "pr2",
+    const std::string& linksCollection = "robot_links",
+    const std::string& jointsCollection = "robot_joints");
+  const std::vector<ModelState> getModelStates(
+    const std::string& database,
+    const std::string& collection = "joint_states");
 
  private:
-  mongo::DBClientConnection conn;
-  urdf::Model _model;
+  mongo::DBClientConnection _conn;
   std::string _host;
-  std::string _database;
-  std::string _linksCollection;
-  std::string _jointsCollection;
-  void parseLinks(TiXmlElement* root);
-  void parseJoints(TiXmlElement* root);
+  void parseLinks(
+    TiXmlElement* root,
+    const std::string& database,
+    const std::string& collection);
+  void parseJoints(
+    TiXmlElement* root,
+    const std::string& database,
+    const std::string& collection);
   std::string parse();
 };
 

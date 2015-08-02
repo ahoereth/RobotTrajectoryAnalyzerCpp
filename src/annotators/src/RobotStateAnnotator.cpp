@@ -292,10 +292,11 @@ class RobotStateAnnotator : public Annotator {
     log->logMessage("RobotStateAnnotator::process() begins");
     uima::TyErrorId errorId = UIMA_ERR_NONE;
 
-    // Parse mongo db source into an urdf model.
-    MongoUrdf* urdf = new MongoUrdf(
-      host, database, linksCollection, jointsCollection);
-    urdf::Model model = urdf->getModel();
+    // Parse MongoDB data into an urdf model.
+    MongoUrdf* urdf = new MongoUrdf(host);
+    urdf::Model model = urdf->getModel(
+      database, linksCollection, jointsCollection);
+    delete urdf;
 
     // Process robot links - TaskSpacePosition annotations.
     errorId = annotateTaskSpace(cas, model);
@@ -305,9 +306,6 @@ class RobotStateAnnotator : public Annotator {
 
     // Process robot joints - DistanceToLimit annotations.
     errorId = annotateLimits(cas, model);
-
-    // Cleanup.
-    delete(urdf);
 
     log->logMessage("RobotStateAnnotator::process() ends");
     return UIMA_ERR_NONE;

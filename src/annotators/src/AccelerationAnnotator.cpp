@@ -139,7 +139,6 @@ class AccelerationAnnotator : public Annotator {
         timeNext = js.getIntValue(jsTimeFtr);
         velocitiesNext = jtp.getDoubleArrayFSValue(jtpVelFtr);
         values = cas.createDoubleArrayFS(velocitiesNext.size());
-
         // Calculate acceleration values.
         for (std::size_t i = 0; i < values.size(); ++i) {
           velocityDiff = velocitiesNext.get(i) - velocitiesPrev.get(i);

@@ -1,12 +1,12 @@
 //////
-// rta > annotators > JointStatePopulator.cpp
+// rta > annotators > JointStatepopulator.cpp
 
 #include <string>
 #include <vector>
 #include <cstdlib>  // size_t
 #include "uima/api.hpp"
-#include "mongo/client/dbclient.h"
 #include "uimautils.hpp"
+#include "MongoUrdf.hpp"
 
 
 using uima::Annotator;  // required for MAKE_AE
@@ -14,15 +14,12 @@ using uima::Annotator;  // required for MAKE_AE
 
 class JointStatePopulator : public Annotator {
  private:
-  mongo::DBClientConnection conn;
   uima::LogFacility* log;
-  uima::CAS* currentCas;
 
-  uima::Type JointState;
+  uima::Type JointStateType;
   uima::Type JointTrajectoryPoint;
 
   uima::Feature jsJtpFtr;    // JointState jointTrajectoryPoint
-  uima::Feature jsSeqFtr;    // JointState seq
   uima::Feature jsTimeFtr;   // JointState time
   uima::Feature jsFrameFtr;  // JointState frameID
   uima::Feature jsNameFtr;   // JointState jointNames
@@ -36,61 +33,13 @@ class JointStatePopulator : public Annotator {
   std::string collection;
 
 
-  /**
-   * Convert a mongo BSON element to a UIMA CAS Double Array Feature Structure.
-   *
-   * TODO: Make this an external utility function.
-   *
-   * @see    JointStatePopulator::toStringArrayFS
-   * @param  field Element containing an array of elements with string values.
-   * @return Returns a string array feature structure.
-   */
-  uima::StringArrayFS toStringArrayFS(const mongo::BSONElement& field) {
-    std::vector<mongo::BSONElement> vec = field.Array();
-    uima::StringArrayFS fs = currentCas->createStringArrayFS(vec.size());
-
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-      fs.set(i, utils::toUS(vec[i].String()));
-    }
-
-    return fs;
-  }
-
-
-  /**
-   * Convert a mongo BSON element to a UIMA CAS String Array Feature Structure.
-   *
-   * TODO: Make this an external utility function.
-   *
-   * @see    JointStatePopulator::toDoubleArrayFS
-   * @param  field Element containing an array of elements with double values.
-   * @return Returns a double array feature structure.
-   */
-  uima::DoubleArrayFS toDoubleArrayFS(const mongo::BSONElement& field) {
-    std::vector<mongo::BSONElement> vec = field.Array();
-    uima::DoubleArrayFS fs = currentCas->createDoubleArrayFS(vec.size());
-
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-      fs.set(i, vec[i].Double());
-    }
-
-    return fs;
-  }
-
-
  public:
   /** Constructor */
-  JointStatePopulator(void) {
-    std::cout << "JointStatePopulator - mongo initialization" << std::endl;
-    mongo::client::initialize();
-  }
+  JointStatePopulator(void) {}
 
 
   /** Destructor */
-  ~JointStatePopulator(void) {
-    std::cout << "JointStatePopulator - mongo shutdown" << std::endl;
-    mongo::client::shutdown();
-  }
+  ~JointStatePopulator(void) {}
 
 
   /**
@@ -124,15 +73,6 @@ class JointStatePopulator : public Annotator {
     log->logMessage("Host: " + host + ", "
                     "Database: " + database + ", "
                     "Collection: " + collection);
-
-    try {
-      conn.connect(host);
-      log->logMessage("Mongo connection established.");
-    } catch (const mongo::DBException& e) {
-      log->logError("caught " + e.toString());
-      return UIMA_ERR_RESMGR_INVALID_RESOURCE;
-    }
-
     return UIMA_ERR_NONE;
   }
 
@@ -151,16 +91,15 @@ class JointStatePopulator : public Annotator {
     log->logMessage("JointStatePopulator::typeSystemInit()");
 
     // JointState *********************************************
-    JointState = typeSystem.getType("JointState");
-    if (!JointState.isValid()) {
+    JointStateType = typeSystem.getType("JointState");
+    if (!JointStateType.isValid()) {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
-    jsJtpFtr   = JointState.getFeatureByBaseName("jointTrajectoryPoint");
-    jsSeqFtr   = JointState.getFeatureByBaseName("seq");
-    jsTimeFtr  = JointState.getFeatureByBaseName("time");
-    jsFrameFtr = JointState.getFeatureByBaseName("frameID");
-    jsNameFtr  = JointState.getFeatureByBaseName("jointNames");
+    jsJtpFtr   = JointStateType.getFeatureByBaseName("jointTrajectoryPoint");
+    jsTimeFtr  = JointStateType.getFeatureByBaseName("time");
+    jsFrameFtr = JointStateType.getFeatureByBaseName("frameID");
+    jsNameFtr  = JointStateType.getFeatureByBaseName("jointNames");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -201,37 +140,46 @@ class JointStatePopulator : public Annotator {
   ) {
     log->logMessage("JointStatePopulator::process() begins");
 
-    // Save cas for use in other member functions.
-    currentCas = &cas;
+    // Parse MongoDB data into an urdf model.
+    MongoUrdf* urdf = new MongoUrdf(host);
+    std::vector<ModelState> states = urdf->getModelStates(database, collection);
+    delete urdf;
 
     // Initialize feature structure index and reused variables.
     uima::FSIndexRepository& index = cas.getIndexRepository();
     uima::AnnotationFS js;
     uima::FeatureStructure jtp;
-    std::size_t seq;
-    mongo::BSONObj obj, header;
+    std::size_t jsCount;
+    uima::StringArrayFS names;
+    uima::DoubleArrayFS positions, velocities, efforts;
 
-    // Query MongoDB.
-    std::auto_ptr<mongo::DBClientCursor> cursor =
-      conn.query(database + "." + collection, mongo::BSONObj());
+    for (std::size_t i = 0, size = states.size(); i < size; i++) {
+      ModelState state = states[i];
 
-    // Parse mongo query results.
-    while (cursor->more()) {
-      obj = cursor->next();
-      header = obj.getObjectField("header");
+      // Aggregate joint states into array feature structures.
+      jsCount = state.jointStates.size();
+      names      = cas.createStringArrayFS(jsCount);
+      positions  = cas.createDoubleArrayFS(jsCount);
+      velocities = cas.createDoubleArrayFS(jsCount);
+      efforts    = cas.createDoubleArrayFS(jsCount);
+      for (std::size_t j = 0; j < jsCount; j++) {
+        JointState joint = state.jointStates[j];
+        names.set(j, utils::toUS(joint.name));
+        positions.set(j, joint.position);
+        velocities.set(j, joint.velocity);
+        efforts.set(j, joint.effort);
+      }
 
-      seq = header.getIntField("seq");
-      js = cas.createAnnotation(JointState, seq, seq);
+      // Create Joint State and Joint Trajectory Point feature structures.
       jtp = cas.createFS(JointTrajectoryPoint);
-
+      jtp.setFSValue(jtpPosFtr, positions);
+      jtp.setFSValue(jtpEffFtr, efforts);
+      jtp.setFSValue(jtpVelFtr, velocities);
+      js = cas.createAnnotation(JointStateType, state.time, state.time);
       js.setFSValue(jsJtpFtr, jtp);
-      js.setIntValue(jsSeqFtr, seq);
-      js.setIntValue(jsTimeFtr, header.getField("stamp").Date().asInt64());
-      js.setStringValue(jsFrameFtr, utils::toUS(obj.getField("frame_id")));
-      js.setFSValue(jsNameFtr, toStringArrayFS(obj.getField("name")));
-      jtp.setFSValue(jtpPosFtr, toDoubleArrayFS(obj.getField("position")));
-      jtp.setFSValue(jtpEffFtr, toDoubleArrayFS(obj.getField("effort")));
-      jtp.setFSValue(jtpVelFtr, toDoubleArrayFS(obj.getField("velocity")));
+      js.setIntValue(jsTimeFtr, state.time);
+      // js.setStringValue(jsFrameFtr, frameID);
+      js.setFSValue(jsNameFtr, names);
 
       index.addFS(js);
     }
