@@ -5,21 +5,19 @@
 #include <vector>
 #include <cstdlib>  // size_t
 #include "uima/api.hpp"
-#include "mongo/client/dbclient.h"
 #include "unicode/unistr.h"  // UnicodeString
 #include "uimautils.hpp"
-
+#include "MongoUrdf.hpp"
 
 using uima::Annotator;  // required for MAKE_AE
 
 
 class ControllerAnnotator : public Annotator {
  private:
-  mongo::DBClientConnection conn;
   uima::LogFacility* log;
   uima::CAS* currentCas;
 
-  uima::Type JointState;
+  uima::Type JointStateType;
   uima::Type JointTrajectoryPoint;
   uima::Type ControllerInput;
 
@@ -42,77 +40,44 @@ class ControllerAnnotator : public Annotator {
 
 
   /**
-   * Convert a mongo BSON element to a UIMA CAS Double Array Feature Structure.
+   * Create a Joint Trajectory Point Feature Structure from a vector of
+   * JointState objects.
    *
-   * TODO: Make this an external utility function.
-   *
-   * @see    JointStatePopulator::toStringArrayFS
-   * @param  field Element containing an array of elements with string values.
-   * @return Returns a string array feature structure.
+   * @param  jointStates Source vector of JointState objects.
+   * @return Joint Trajectory Point with all the information from the objects.
    */
-  uima::StringArrayFS toStringArrayFS(const mongo::BSONElement& field) {
-    std::vector<mongo::BSONElement> vec = field.Array();
-    uima::StringArrayFS fs = currentCas->createStringArrayFS(vec.size());
+  uima::FeatureStructure toJtp(const std::vector<JointState>& jointStates) {
+    std::size_t size = jointStates.size(), i = 0;
+    std::vector<JointState>::const_iterator it;
 
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-      fs.set(i, utils::toUS(vec[i].String()));
+    uima::DoubleArrayFS positions     = currentCas->createDoubleArrayFS(size);
+    uima::DoubleArrayFS effort        = currentCas->createDoubleArrayFS(size);
+    uima::DoubleArrayFS velocities    = currentCas->createDoubleArrayFS(size);
+    uima::DoubleArrayFS accelerations = currentCas->createDoubleArrayFS(size);
+    for (it = jointStates.begin(); it != jointStates.end(); it++, i++) {
+      positions.set(i, it->position);
+      effort.set(i, it->effort);
+      velocities.set(i, it->velocity);
+      accelerations.set(i, it->acceleration);
     }
 
-    return fs;
-  }
-
-
-  /**
-   * Convert a mongo BSON element to a UIMA CAS String Array Feature Structure.
-   *
-   * TODO: Make this an external utility function.
-   *
-   * @see    JointStatePopulator::toDoubleArrayFS
-   * @param  field Element containing an array of elements with double values.
-   * @return Returns a double array feature structure.
-   */
-  uima::DoubleArrayFS toDoubleArrayFS(const mongo::BSONElement& field) {
-    std::vector<mongo::BSONElement> vec = field.Array();
-    uima::DoubleArrayFS fs = currentCas->createDoubleArrayFS(vec.size());
-
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-      fs.set(i, vec[i].Double());
-    }
-
-    return fs;
-  }
-
-
-  /**
-   * Create a Joint Trajectory Point Feature Structure from a mongo BSON object
-   * containing the fields position, effort, velocity, and acelerations.
-   *
-   * @param  obj Source bson object.
-   * @return Joint Trajectory Point with all the information from the object.
-   */
-  uima::FeatureStructure readJtp(const mongo::BSONObj& obj) {
     uima::FeatureStructure jtp = currentCas->createFS(JointTrajectoryPoint);
-    jtp.setFSValue(jtpPosFtr, toDoubleArrayFS(obj.getField("positions")));
-    jtp.setFSValue(jtpEffFtr, toDoubleArrayFS(obj.getField("effort")));
-    jtp.setFSValue(jtpVelFtr, toDoubleArrayFS(obj.getField("velocities")));
-    jtp.setFSValue(jtpAccFtr, toDoubleArrayFS(obj.getField("accelerations")));
+    jtp.setFSValue(jtpPosFtr, positions);
+    jtp.setFSValue(jtpEffFtr, effort);
+    jtp.setFSValue(jtpVelFtr, velocities);
+    jtp.setFSValue(jtpAccFtr, accelerations);
+
     return jtp;
   }
 
 
  public:
   /** Constructor */
-  ControllerAnnotator(void) {
-    std::cout << "ControllerAnnotator - mongo initialization" << std::endl;
-    mongo::client::initialize();
-  }
+  ControllerAnnotator(void) {}
 
 
   /** Destructor */
-  ~ControllerAnnotator(void) {
-    std::cout << "ControllerAnnotator - mongo shutdown" << std::endl;
-    mongo::client::shutdown();
-  }
+  ~ControllerAnnotator(void) {}
 
 
   /**
@@ -151,14 +116,6 @@ class ControllerAnnotator : public Annotator {
                     "Database: " + database + ", "
                     "Controllers: " + utils::join(controllers, ", "));
 
-    try {
-      conn.connect(host);
-      log->logMessage("Mongo connection established.");
-    } catch (const mongo::DBException& e) {
-      log->logError("caught " + e.toString());
-      return UIMA_ERR_RESMGR_INVALID_RESOURCE;
-    }
-
     return UIMA_ERR_NONE;
   }
 
@@ -178,12 +135,12 @@ class ControllerAnnotator : public Annotator {
     log->logMessage("ControllerAnnotator::typeSystemInit() begins");
 
     // JointState *********************************************
-    JointState = typeSystem.getType("JointState");
-    if (!JointState.isValid()) {
+    JointStateType = typeSystem.getType("JointState");
+    if (!JointStateType.isValid()) {
       log->logError("Error getting Type object for JointState");
       return UIMA_ERR_RESMGR_INVALID_RESOURCE;
     }
-    jsTimeFtr  = JointState.getFeatureByBaseName("time");
+    jsTimeFtr  = JointStateType.getFeatureByBaseName("time");
 
     // JointTrajectoryPoint ***********************************
     JointTrajectoryPoint = typeSystem.getType("JointTrajectoryPoint");
@@ -239,25 +196,28 @@ class ControllerAnnotator : public Annotator {
   ) {
     log->logMessage("ControllerAnnotator::processController() begins");
 
+    // Parse MongoDB data into an urdf model.
+    MongoUrdf* urdf = new MongoUrdf(host);
+    typedef std::vector< std::map<std::string, ModelState> > statesT;
+    statesT states = urdf->getControllerStates(database, controller);
+    delete urdf;
+
     // Initialize required indices.
     uima::FSIndexRepository& index = cas.getIndexRepository();
-    uima::ANIndex jsIndex = cas.getAnnotationIndex(JointState);
-    uima::ANIterator jsIter = cas.getAnnotationIndex(JointState).iterator();
-
+    uima::ANIterator jsIter = cas.getAnnotationIndex(JointStateType).iterator();
     uima::AnnotationFS ci, js;
+    std::vector<std::string> names;
     int stamp, begin, end;
 
-    // Query MongoDB and parse result cursor.
-    std::auto_ptr<mongo::DBClientCursor> cursor =
-      conn.query(database + "." + controller, mongo::BSONObj());
+    for (statesT::iterator it = states.begin(); it != states.end(); it++) {
+      ModelState desired = it->find("desired")->second;
+      ModelState actual  = it->find("actual")->second;
+      ModelState error   = it->find("error")->second;
 
-    while (cursor->more()) {
-      mongo::BSONObj obj = cursor->next();
-      mongo::BSONObj header = obj.getObjectField("header");
-      stamp = header.getField("stamp").Date().asInt64();
+      names = desired.getJointNames();
+      stamp = desired.time;
       begin = 0, end = 0;
 
-      // TODO: Clarify relation between controller- and joint state
       if (
         jsIter.isValid() && jsIter.peekPrevious().isValid() &&
         stamp < (js = jsIter.get()).getIntValue(jsTimeFtr)
@@ -270,10 +230,10 @@ class ControllerAnnotator : public Annotator {
       ci = cas.createAnnotation(ControllerInput, begin, end);
       ci.setStringValue(ciTypeFtr, utils::toUS(controller));
       ci.setIntValue(ciTimeFtr, stamp);
-      ci.setFSValue(ciJnsFtr, toStringArrayFS(obj.getField("joint_names")));
-      ci.setFSValue(ciDesFtr, readJtp(obj.getField("desired").Obj()));
-      ci.setFSValue(ciActFtr, readJtp(obj.getField("actual").Obj()));
-      ci.setFSValue(ciErrFtr, readJtp(obj.getField("error").Obj()));
+      ci.setFSValue(ciJnsFtr, utils::toStringArrayFS(cas, names));
+      ci.setFSValue(ciDesFtr, toJtp(desired.jointStates));
+      ci.setFSValue(ciActFtr, toJtp(actual.jointStates));
+      ci.setFSValue(ciErrFtr, toJtp(error.jointStates));
 
       index.addFS(ci);
     }

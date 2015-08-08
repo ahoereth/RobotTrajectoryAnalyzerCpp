@@ -7,7 +7,8 @@
 
 #include <string>
 #include <vector>
-#include "boost/smart_ptr.hpp"
+#include <map>
+#include <iostream>  // cout, endl
 #include "mongo/client/dbclient.h"
 #include "./tinyxml.h"
 #include "urdf/model.h"
@@ -29,6 +30,9 @@ class MongoUrdf {
   const std::vector<ModelState> getModelStates(
     const std::string& database,
     const std::string& collection = "joint_states");
+  const std::vector< std::map<std::string, ModelState> > getControllerStates(
+    const std::string& database,
+    const std::string& collection);
 
  private:
   mongo::DBClientConnection _conn;
@@ -41,7 +45,10 @@ class MongoUrdf {
     TiXmlElement* root,
     const std::string& database,
     const std::string& collection);
-  std::string parse();
+  ModelState parseControllerState(
+    const std::string& name,
+    const mongo::BSONObj& obj,
+    const std::string& groupName);
 };
 
 

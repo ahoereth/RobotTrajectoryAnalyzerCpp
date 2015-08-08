@@ -9,9 +9,9 @@
 
   <build_depend>uimacpp</build_depend>
   <build_depend>urdf</build_depend>
-  <build_depend>mongoclient</build_depend>
   <build_depend>uimacppext</build_depend>
   <build_depend>mongourdf</build_depend>
 
   <run_depend>urdf</run_depend>
+  <run_depend>mongoclient</run_depend>
 </package>

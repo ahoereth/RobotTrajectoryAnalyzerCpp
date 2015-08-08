@@ -4,7 +4,8 @@
 
 #include <string>
 #include <vector>
-#include "boost/smart_ptr.hpp"
+#include <map>
+#include <iostream>  // cout, endl
 #include "mongo/client/dbclient.h"
 #include "urdf/model.h"
 #include "utils.hpp"
@@ -188,6 +189,38 @@ const std::vector<ModelState> MongoUrdf::getModelStates(
 }
 
 
+/**
+ * Parse a specific database collection for controller input states and
+ * generate a map of ModelState vectors representing it.
+ *
+ * @param  database
+ * @param  collection
+ * @return A map containing the keys `desired`, `actual` and `error` each
+ *         holding a vector of ModelState objects.
+ */
+const std::vector< std::map<std::string, ModelState> >
+MongoUrdf::getControllerStates(
+  const std::string& database,
+  const std::string& collection
+) {
+  std::vector< std::map<std::string, ModelState> > statesMapVector;
+  std::auto_ptr<mongo::DBClientCursor> cursor;
+  mongo::BSONObj obj;
+
+  cursor = _conn.query(database + "." + collection, mongo::BSONObj());
+  while (cursor->more()) {
+    obj = cursor->next();
+    std::map<std::string, ModelState> statesMap;
+    statesMap["desired"] = parseControllerState(collection, obj, "desired");
+    statesMap["actual"] = parseControllerState(collection, obj, "actual");
+    statesMap["error"] = parseControllerState(collection, obj, "error");
+    statesMapVector.push_back(statesMap);
+  }
+
+  return statesMapVector;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Private MongoUrdf class members
 
@@ -286,4 +319,54 @@ void MongoUrdf::parseJoints(
     axis->SetAttribute("xyz", mongoCoordinatesToString(obj.getField("axis")));
     joint->LinkEndChild(axis);
   }
+}
+
+
+/**
+ * Parse one of the specific controller model states from the Mongo Database.
+ *
+ * @param  name      The controller name.
+ * @param  obj       The database object containing the names, group and
+ *                   header fields.
+ * @param  groupName The group to parse: `desired`, `actual` or `error`.
+ * @return A vector of ModelState objects.
+ */
+ModelState MongoUrdf::parseControllerState(
+  const std::string& name,
+  const mongo::BSONObj& obj,
+  const std::string& groupName
+) {
+  mongo::BSONObj group  = obj.getObjectField(groupName);
+
+  std::vector<mongo::BSONElement> names = obj.getField("joint_names").Array();
+  std::vector<mongo::BSONElement> positions, velocities, effort, accelerations;
+  positions     = group.getField("positions").Array();
+  velocities    = group.getField("velocities").Array();
+  effort        = group.getField("effort").Array();
+  accelerations = group.getField("accelerations").Array();
+
+  long stamp = obj.getObjectField("header").getField("stamp").Date().asInt64();
+  ModelState modelState = ModelState(name, stamp);
+  for (std::size_t i = 0; i < names.size(); ++i) {
+    JointState jointState = JointState(names[i].String());
+    if (i < positions.size()) {
+      jointState.position = positions[i].Double();
+    }
+
+    if (i < velocities.size()) {
+      jointState.velocity = velocities[i].Double();
+    }
+
+    if (i < effort.size()) {
+      jointState.effort = effort[i].Double();
+    }
+
+    if (i < accelerations.size()) {
+      jointState.acceleration = accelerations[i].Double();
+    }
+
+    modelState.addJointState(jointState);
+  }
+
+  return modelState;
 }

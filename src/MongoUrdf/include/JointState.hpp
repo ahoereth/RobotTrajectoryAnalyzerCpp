@@ -17,11 +17,17 @@ class JointState {
   double position;
   double velocity;
   double effort;
+  double acceleration;
 
   explicit JointState(const std::string& name) : name(name) {}
   JointState(
     const std::string& name, double position, double velocity, double effort)
     : name(name), position(position), velocity(velocity), effort(effort) {}
+  JointState(
+    const std::string& name, double position,
+    double velocity, double effort, double acceleration) :
+    name(name), position(position),
+    velocity(velocity), effort(effort), acceleration(acceleration) {}
   ~JointState(void) {}
 };
 

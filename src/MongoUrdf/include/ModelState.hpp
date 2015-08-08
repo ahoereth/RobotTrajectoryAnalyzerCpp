@@ -19,11 +19,13 @@ class ModelState {
   long time;
   std::vector<JointState> jointStates;
 
+  ModelState(void) {}
   ModelState(const std::string& name, double time) : name(name), time(time) {}
   ~ModelState(void) {}
   void addJointState(const JointState& jointState) {
     jointStates.push_back(jointState);
   }
+  std::vector<std::string> getJointNames();
 };
 
 
