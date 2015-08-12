@@ -247,17 +247,19 @@ class MovementDirectionAnnotator : public Annotator {
     std::size_t begin = 0, end;
     int direction;
 
+    std::vector<int> movementStates;
+
     // Loop through movement annotations.
     while (moveIter.isValid()) {
       move = moveIter.get();
       jointStates = utils::selectCovered(jsIndex, move);
       direction = 0;
+      end = move.getEndPosition();
+      begin = move.getBeginPosition();
 
       // Loop through joint states related to this movement.
       for (std::size_t i = 0; i < jointStates.size(); i++) {
         js = jointStates[i];
-        end = js.getEndPosition();
-        begin = js.getBeginPosition();
         name = move.getStringValue(mvNameFtr);
         pos = getPosByName(js, name);
         posStart = pos;
@@ -267,7 +269,8 @@ class MovementDirectionAnnotator : public Annotator {
         switch (direction) {
           case POSITIVE:
             if (0 > posDiff) {  // Direction changed, now negative.
-              index.addFS(negMoveAnnotation(name, begin, end, posStart, pos));
+              index.addFS(negMoveAnnotation(
+                name, begin, js.getEndPosition(), posStart, pos));
               direction = NEGATIVE;
               posStart = pos;
               begin = js.getBeginPosition();
@@ -275,7 +278,8 @@ class MovementDirectionAnnotator : public Annotator {
             break;
           case NEGATIVE:
             if (0 < posDiff) {  // Direction changed, now positive.
-              index.addFS(posMoveAnnotation(name, begin, end, posStart, pos));
+              index.addFS(posMoveAnnotation(
+                name, begin, js.getEndPosition(), posStart, pos));
               direction = POSITIVE;
               posStart = pos;
               begin = js.getBeginPosition();

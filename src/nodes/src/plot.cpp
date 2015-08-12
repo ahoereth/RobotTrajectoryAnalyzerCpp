@@ -123,26 +123,6 @@ std::string choosePlot(int size) {
 }
 
 
-/**
- *
- *//*
-void movblub() {
-
-    int now = jsIter.getString("time");
-
-    // Start publishing.
-    while (node.ok()) {
-      if (posIter.get().getEndPosition() > now) {
-        movIter.moveToNext();
-      }
-
-      if (velIter.get().getEndPosition() > now) {
-        velIter.moveToNext();
-      }
-}*/
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Main.
 

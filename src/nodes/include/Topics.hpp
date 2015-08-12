@@ -27,6 +27,13 @@ class Topics {
   bool loop;
   bool echo;
 
+  bool isMovement(
+    uima::ANIterator& iter,
+    const uima::Feature& nameFtr,
+    const uima::UnicodeStringRef& name,
+    std::size_t position
+  );
+
  public:
   static const std::vector<std::string> getPlots();
   static std::string getCommand(const std::string& plot, int size);
@@ -47,6 +54,7 @@ class Topics {
   void plot(const std::string& plot);
   void acc();
   void posvel();
+  void posvelmov();
 };
 
 #endif  // ifndef __TOPICS_INCLUDE__
