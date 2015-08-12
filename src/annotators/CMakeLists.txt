@@ -79,8 +79,7 @@ add_library(AnnotationGateway SHARED src/AnnotationGateway.cpp)
 target_link_libraries(AnnotationGateway
   ${uimacpp_LIBRARIES}
   uimautils
-  StdCoutLogger
-  AnnotationIterator)
+  StdCoutLogger)
 
 ################################################################################
 ## Executables                                                                ##

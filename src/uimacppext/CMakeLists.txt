@@ -30,6 +30,3 @@ target_link_libraries(uimautils ${uimacpp_LIBRARIES})
 
 add_library(StdCoutLogger SHARED src/StdCoutLogger.cpp)
 target_link_libraries(StdCoutLogger ${uimacpp_LIBRARIES})
-
-add_library(AnnotationIterator SHARED src/AnnotationIterator.cpp)
-target_link_libraries(AnnotationIterator ${uimacpp_LIBRARIES})

@@ -8,7 +8,6 @@
 #include <string>
 #include "uima/api.hpp"
 #include "unicode/unistr.h"  // UnicodeString
-#include "AnnotationIterator.hpp"
 #include "StdCoutLogger.hpp"
 #include "uimautils.hpp"
 
@@ -38,8 +37,11 @@ class AnnotationGateway {
   void initAE();
   void run();
   uima::Type getType(const icu::UnicodeString& typeName);
-  AnnotationIterator getAnnotationIterator(
-    const icu::UnicodeString& typeName);
+  uima::Feature getFeature(
+    const icu::UnicodeString& typeName,
+    const icu::UnicodeString& featureName
+  );
+  uima::ANIterator getANIterator(const icu::UnicodeString& typeName);
 };
 
 

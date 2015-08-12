@@ -5,7 +5,6 @@
 #include "uima/api.hpp"
 #include "unicode/unistr.h"  // UnicodeString
 #include "AnnotationGateway.hpp"
-#include "AnnotationIterator.hpp"
 #include "StdCoutLogger.hpp"
 #include "uimautils.hpp"
 
@@ -100,6 +99,14 @@ uima::Type AnnotationGateway::getType(
 }
 
 
+uima::Feature AnnotationGateway::getFeature(
+  const icu::UnicodeString& typeName,
+  const icu::UnicodeString& featureName
+) {
+  return getType(typeName).getFeatureByBaseName(featureName);
+}
+
+
 /**
  * Get an AnnotationIterator over feature structures of a specific
  * type from the annotation index.
@@ -107,10 +114,8 @@ uima::Type AnnotationGateway::getType(
  * @param  typeName Over which feature structures to iterate.
  * @return An custom AnnotationIterator from the uimacppext package.
  */
-AnnotationIterator AnnotationGateway::getAnnotationIterator(
+uima::ANIterator AnnotationGateway::getANIterator(
   const icu::UnicodeString& typeName
 ) {
-  uima::Type type = getType(typeName);
-  uima::ANIterator iterator = cas->getAnnotationIndex(type).iterator();
-  return AnnotationIterator(iterator, type);
+  return cas->getAnnotationIndex(getType(typeName)).iterator();
 }

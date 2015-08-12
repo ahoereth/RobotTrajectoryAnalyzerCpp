@@ -29,5 +29,13 @@ include_directories(
 ################################################################################
 ## Executables                                                                ##
 ################################################################################
-add_executable(acceleration_topic src/acceleration_topic.cpp)
-target_link_libraries(acceleration_topic ${roscpp_LIBRARIES} AnnotationGateway)
+add_library(Topics src/Topics.cpp)
+target_link_libraries(Topics ${roscpp_LIBRARIES} AnnotationGateway uimautils)
+
+add_executable(plot src/plot.cpp)
+target_link_libraries(plot
+  ${roscpp_LIBRARIES}
+  AnnotationGateway
+  uimautils
+  Topics
+)
