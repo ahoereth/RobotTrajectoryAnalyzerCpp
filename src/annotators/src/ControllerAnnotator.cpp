@@ -216,18 +216,18 @@ class ControllerAnnotator : public Annotator {
 
       names = desired.getJointNames();
       stamp = desired.time;
-      begin = 0, end = 0;
+      //begin = 0, end = 0;
 
-      if (
+      /*if (
         jsIter.isValid() && jsIter.peekPrevious().isValid() &&
         stamp < (js = jsIter.get()).getIntValue(jsTimeFtr)
       ) {
         jsIter.moveToNext();
         begin = js.getBeginPosition();
         end = js.getEndPosition();
-      }
+      }*/
 
-      ci = cas.createAnnotation(ControllerInput, begin, end);
+      ci = cas.createAnnotation(ControllerInput, stamp, stamp);
       ci.setStringValue(ciTypeFtr, utils::toUS(controller));
       ci.setIntValue(ciTimeFtr, stamp);
       ci.setFSValue(ciJnsFtr, utils::toStringArrayFS(cas, names));

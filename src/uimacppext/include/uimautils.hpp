@@ -33,6 +33,10 @@ std::vector<uima::AnnotationFS> selectCovered(
   const uima::ANIndex& index,
   const uima::AnnotationFS& fs
 );
+std::vector<uima::AnnotationFS> selectCovered(
+  uima::ANIterator& iterator,
+  const uima::AnnotationFS& fs
+);
 void checkError(
   const uima::TyErrorId& errorId,
   const uima::AnalysisEngine& engine

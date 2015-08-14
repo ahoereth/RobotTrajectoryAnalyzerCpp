@@ -297,6 +297,7 @@ void Topics::posvelmov() {
  * Fire off desired, actual and error position topics.
  */
 void Topics::poserr() {
+  uima::ANIterator jsIter = gateway.getANIterator("JointState");
   uima::ANIterator ciIter = gateway.getANIterator("ControllerInput");
   uima::Feature namesFtr = gateway.getFeature("ControllerInput", "jointNames");
   uima::Feature desiredFtr = gateway.getFeature("ControllerInput", "desired");
@@ -312,23 +313,22 @@ void Topics::poserr() {
   std_msgs::Float64MultiArray desiredMsg, actualMsg, errorMsg;
 
   uima::AnnotationFS ci;
-  uima::StringArrayFS names;
+  std::vector<uima::AnnotationFS> cis;
+  std::vector<std::string> names;
   uima::DoubleArrayFS desiredVal, actualVal, errorVal;
 
-  std::vector<std::string>::const_iterator namesIt;
+  std::vector<std::string>::const_iterator ni;
   std::size_t i = 0;
+  int index;
 
   while (node.ok() && (ciIter.isValid() || loop)) {
     if (!ciIter.isValid()) {
-      ciIter = gateway.getANIterator("ControllerInput");
+      ciIter.moveToFirst();
     }
 
     ci = ciIter.get();
     ciIter.moveToNext();
-    names = ci.getStringArrayFSValue(namesFtr);
-    desiredVal = ci.getFSValue(desiredFtr).getDoubleArrayFSValue(pFtr);
-    actualVal  = ci.getFSValue(actualFtr).getDoubleArrayFSValue(pFtr);
-    errorVal   = ci.getFSValue(errorFtr).getDoubleArrayFSValue(pFtr);
+    cis = utils::selectCovered(ciIter, ci);
 
     // Generate fresh message.
     desiredMsg.data.clear();
@@ -339,15 +339,25 @@ void Topics::poserr() {
     errorMsg.data.resize(joints.size());
 
     bool gotdata = false;
+
     for (
-      namesIt = jointNames.begin(), i = 0;
-      jointNames.end() != namesIt; namesIt++, i++
+      std::vector<uima::AnnotationFS>::const_iterator ci = cis.begin();
+      cis.end() != ci; ci++
     ) {
-      for (std::size_t j = 0; j < names.size(); j++) {
-        if (utils::toString(names.get(j).getBuffer()) == *namesIt) {
-          desiredMsg.data[i] = desiredVal.get(j);
-          actualMsg.data[i]  = actualVal.get(j);
-          errorMsg.data[i]   = errorVal.get(j);
+      names = utils::toVector(ci->getStringArrayFSValue(namesFtr));
+      desiredVal = ci->getFSValue(desiredFtr).getDoubleArrayFSValue(pFtr);
+      actualVal  = ci->getFSValue(actualFtr).getDoubleArrayFSValue(pFtr);
+      errorVal   = ci->getFSValue(errorFtr).getDoubleArrayFSValue(pFtr);
+
+      for (
+        ni = jointNames.begin(), i = 0;
+        jointNames.end() != ni; ni++, i++
+      ) {
+        index = utils::indexOf(names, *ni);
+        if (index >= 0) {
+          desiredMsg.data[i] = desiredVal.get(index);
+          actualMsg.data[i]  = actualVal.get(index);
+          errorMsg.data[i]   = errorVal.get(index);
           gotdata = true;
         }
       }

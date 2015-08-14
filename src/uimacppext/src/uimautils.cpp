@@ -94,12 +94,22 @@ std::vector<uima::AnnotationFS> selectCovered(
   const uima::ANIndex& index,
   const uima::AnnotationFS& fs
 ) {
+  uima::ANIterator iter = index.iterator();
+  return selectCovered(iter, fs);
+}
+
+std::vector<uima::AnnotationFS> selectCovered(
+  uima::ANIterator& iter,
+  const uima::AnnotationFS& fs
+) {
   std::vector<uima::AnnotationFS> result;
   uima::AnnotationFS item;
   std::size_t begin = fs.getBeginPosition();
   std::size_t end = fs.getEndPosition();
 
-  uima::ANIterator iter = index.iterator();
+  uima::FeatureStructure original = iter.get();
+
+  iter.moveToFirst();
   while (iter.isValid()) {
     item = iter.get();
     iter.moveToNext();
@@ -109,6 +119,7 @@ std::vector<uima::AnnotationFS> selectCovered(
     }
   }
 
+  iter.moveTo(original);
   return result;
 }
 
