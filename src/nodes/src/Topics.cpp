@@ -21,10 +21,11 @@
  * @return Vector of plot names as strings.
  */
 const std::vector<std::string> Topics::getPlots() {
-  std::vector<std::string> plots(3);
-  plots[0] = "acc";
-  plots[1] = "posvel";
-  plots[2] = "posvelmov";
+  std::vector<std::string> plots(4);
+  plots[0] = "Acceleration";
+  plots[1] = "Position + Velocity";
+  plots[2] = "Position + Velocity + Movement";
+  plots[3] = "Position Error";
   return plots;
 }
 
@@ -37,18 +38,23 @@ const std::vector<std::string> Topics::getPlots() {
  * @return Terminal command to be executed.
  */
 std::string Topics::getCommand(const std::string& plot, int size) {
+  std::vector<std::string> plots = getPlots();
   std::vector<std::string> topics;
 
-  if ("acc" == plot) {
+  if (plot == plots[0]) {
     topics.push_back("acc");
-  } else if ("posvel" == plot) {
+  } else if (plot == plots[1]) {
     topics.push_back("pos");
     topics.push_back("vel");
-  } else if ("posvelmov" == plot) {
+  } else if (plot == plots[2]) {
     topics.push_back("pos");
     topics.push_back("vel");
     topics.push_back("pmov");
     topics.push_back("nmov");
+  } else if (plot == plots[3]) {
+    topics.push_back("desired");
+    topics.push_back("actual");
+    topics.push_back("error");
   }
 
   std::string cmd = "rqt_plot ";
@@ -74,7 +80,7 @@ Topics::Topics(
   bool loop,
   bool echo
 ) : node(node), gateway(gateway), joints(joints.first),
-    rate(rate), loop(loop), echo(echo)
+    jointNames(joints.second), rate(rate), loop(loop), echo(echo)
 {
   if (echo) {
     std::puts(utils::join(joints.second, " | ").c_str());
@@ -88,12 +94,16 @@ Topics::Topics(
  * @param plot
  */
 void Topics::plot(const std::string& plot) {
-  if ("acc" == plot) {
+  std::vector<std::string> plots = getPlots();
+
+  if (plot == plots[0]) {
     acc();
-  } else if ("posvel" == plot) {
+  } else if (plot == plots[1]) {
     posvel();
-  } else if ("posvelmov" == plot) {
+  } else if (plot == plots[2]) {
     posvelmov();
+  } else if (plot == plots[3]) {
+    poserr();
   }
 }
 
@@ -277,6 +287,88 @@ void Topics::posvelmov() {
     nmovPub.publish(nmovMsg);
 
     jsIter.moveToNext();
+    ros::spinOnce();
+    rate.sleep();
+  }
+}
+
+
+/**
+ * Fire off desired, actual and error position topics.
+ */
+void Topics::poserr() {
+  uima::ANIterator ciIter = gateway.getANIterator("ControllerInput");
+  uima::Feature namesFtr = gateway.getFeature("ControllerInput", "jointNames");
+  uima::Feature desiredFtr = gateway.getFeature("ControllerInput", "desired");
+  uima::Feature actualFtr  = gateway.getFeature("ControllerInput", "actual");
+  uima::Feature errorFtr   = gateway.getFeature("ControllerInput", "error");
+  uima::Feature pFtr = gateway.getFeature("JointTrajectoryPoint", "positions");
+
+  ros::Publisher desired, actual, error;
+  desired = node.advertise<std_msgs::Float64MultiArray>("desired", 1000);
+  actual  = node.advertise<std_msgs::Float64MultiArray>("actual", 1000);
+  error   = node.advertise<std_msgs::Float64MultiArray>("error", 1000);
+
+  std_msgs::Float64MultiArray desiredMsg, actualMsg, errorMsg;
+
+  uima::AnnotationFS ci;
+  uima::StringArrayFS names;
+  uima::DoubleArrayFS desiredVal, actualVal, errorVal;
+
+  std::vector<std::string>::const_iterator namesIt;
+  std::size_t i = 0;
+
+  while (node.ok() && (ciIter.isValid() || loop)) {
+    if (!ciIter.isValid()) {
+      ciIter = gateway.getANIterator("ControllerInput");
+    }
+
+    ci = ciIter.get();
+    ciIter.moveToNext();
+    names = ci.getStringArrayFSValue(namesFtr);
+    desiredVal = ci.getFSValue(desiredFtr).getDoubleArrayFSValue(pFtr);
+    actualVal  = ci.getFSValue(actualFtr).getDoubleArrayFSValue(pFtr);
+    errorVal   = ci.getFSValue(errorFtr).getDoubleArrayFSValue(pFtr);
+
+    // Generate fresh message.
+    desiredMsg.data.clear();
+    actualMsg.data.clear();
+    errorMsg.data.clear();
+    desiredMsg.data.resize(joints.size());
+    actualMsg.data.resize(joints.size());
+    errorMsg.data.resize(joints.size());
+
+    bool gotdata = false;
+    for (
+      namesIt = jointNames.begin(), i = 0;
+      jointNames.end() != namesIt; namesIt++, i++
+    ) {
+      for (std::size_t j = 0; j < names.size(); j++) {
+        if (utils::toString(names.get(j).getBuffer()) == *namesIt) {
+          desiredMsg.data[i] = desiredVal.get(j);
+          actualMsg.data[i]  = actualVal.get(j);
+          errorMsg.data[i]   = errorVal.get(j);
+          gotdata = true;
+        }
+      }
+    }
+
+    if (!gotdata) {
+      continue;
+    }
+
+    // Print current message data.
+    if (echo) {
+      std::puts(utils::join(desiredMsg.data, " | ").c_str());
+      std::puts(utils::join(actualMsg.data, " | ").c_str());
+      std::puts(utils::join(errorMsg.data, " | ").c_str());
+      std::puts("");
+    }
+
+    desired.publish(desiredMsg);
+    actual.publish(actualMsg);
+    error.publish(errorMsg);
+
     ros::spinOnce();
     rate.sleep();
   }

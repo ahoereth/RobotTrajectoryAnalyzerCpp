@@ -23,6 +23,7 @@ class Topics {
   ros::NodeHandle& node;
   AnnotationGateway& gateway;
   std::vector<int> joints;
+  std::vector<std::string> jointNames;
   ros::Rate rate;
   bool loop;
   bool echo;
@@ -55,6 +56,7 @@ class Topics {
   void acc();
   void posvel();
   void posvelmov();
+  void poserr();
 };
 
 #endif  // ifndef __TOPICS_INCLUDE__
