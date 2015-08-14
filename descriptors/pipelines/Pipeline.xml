@@ -37,7 +37,7 @@
         <type>String</type>
         <overrides>
           <parameter>JointStatePopulator/Host</parameter>
-          <parameter>ControllerAnnotator/Host</parameter>
+          <parameter>MovementControllerPipeline/Host</parameter>
           <parameter>RobotStateAnnotator/Host</parameter>
         </overrides>
       </configurationParameter>
@@ -46,7 +46,7 @@
         <type>String</type>
         <overrides>
           <parameter>JointStatePopulator/Database</parameter>
-          <parameter>ControllerAnnotator/Database</parameter>
+          <parameter>MovementControllerPipeline/Database</parameter>
         </overrides>
       </configurationParameter>
     </configurationParameters>
@@ -62,7 +62,7 @@
       <nameValuePair>
         <name>Database</name>
         <value>
-          <string>dummy1</string>
+          <string>collision4</string>
         </value>
       </nameValuePair>
     </configurationParameterSettings>

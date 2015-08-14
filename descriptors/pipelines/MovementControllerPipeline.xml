@@ -24,11 +24,17 @@
     <!-- Configuration Parameter Definitions -->
     <configurationParameters>
       <configurationParameter>
-        <name>Threshold</name>
-        <type>Integer</type>
+        <name>Host</name>
+        <type>String</type>
         <overrides>
-          <parameter>UnplannedStopAnnotator/Threshold</parameter>
-          <parameter>SelfCollisionAnnotator/Threshold</parameter>
+          <parameter>ControllerPipeline/Host</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Database</name>
+        <type>String</type>
+        <overrides>
+          <parameter>ControllerPipeline/Database</parameter>
         </overrides>
       </configurationParameter>
     </configurationParameters>
@@ -36,9 +42,15 @@
     <!-- Configuration Parameter Values -->
     <configurationParameterSettings>
       <nameValuePair>
-        <name>Threshold</name>
+        <name>Host</name>
         <value>
-          <integer>15</integer>
+          <string>localhost</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Database</name>
+        <value>
+          <string>dummy1</string>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
