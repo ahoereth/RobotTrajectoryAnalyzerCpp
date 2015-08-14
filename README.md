@@ -23,10 +23,10 @@ Requires `mongod` and `roscore` running.
 
 ```shell
 $ source ./devel/setup.bash
-$ rosrun rta_nodes plot -loop -echo -rate=100
+$ rosrun rta_nodes plot -loop -echo -rate=100 -database=dummy1
 ```
 
-The `loop`, `echo` and `rate` flags can be ommited. Default rate is 1000. The application will prompt you with a `rqt_plot` command which has to be executed in an independent terminal window - the plot will then be populated with data by the chosen topics.
+All flags are optional. Default rate is `1000` and default database is `dummy1`. The application will prompt you with a `rqt_plot` command which has to be executed in an independent terminal window - the plot will then be populated with data by the chosen topics.
 
 `rqt_plot` is most useful if used with [PyQtGraph](http://www.pyqtgraph.org/) and its auto scaling functionality (buttom on the bottom left of the plot).
 
@@ -50,3 +50,29 @@ On the left you see an example terminal output: First the application asks for a
 The graph shows an obvious limitation of `rqt_plot`: Teal and pink describe different movement directions which are only relevant in specific parts of the plot but plot as 0 values when not relevant. Therefore the plot looks rather noisy.
 
 ![Position + Velocity + MovementDirection](https://cloud.githubusercontent.com/assets/3015996/9230927/8d6ddf78-4125-11e5-9d59-5d5e0186bcda.png)
+
+
+### Position Error 1
+
+* `rosrun rta_nodes plot -database=collision4`
+* `35) l_elbow_flex_joint`
+* `3) Position Error`
+
+![Position Error left elbow](https://cloud.githubusercontent.com/assets/3015996/9273309/d1ec433a-428b-11e5-847b-c3c4f0cdfe66.png)
+
+
+### Position Error 2
+
+* `rosrun rta_nodes plot -database=collision4`
+* `35) l_elbow_flex_joint` and `21) r_elbow_flex_joint`
+* `3) Position Error`
+
+![Position Error left and right elbow](https://cloud.githubusercontent.com/assets/3015996/9273315/e9b790e6-428b-11e5-8fd4-d500e83fd866.png)
+
+### Oscillation
+
+* `rosrun rta_nodes plot -database=oscillation3`
+* `33) l_shoulder_lift_joint`
+* `1) Position Velocity`
+
+![Position Velocity left shoulder](https://cloud.githubusercontent.com/assets/3015996/9273323/faa984c2-428b-11e5-9c16-ddb44e38743b.png)
