@@ -67,7 +67,8 @@ void coutlinesep() {
  * Display a list of joints and provider the user with the option to select
  * from them.
  */
-std::pair< const std::vector<int>, const std::vector<std::string> > chooseJoints(
+std::pair< const std::vector<int>, const std::vector<std::string> >
+chooseJoints(
   const std::vector<std::string>& names
 ) {
   coutlinesep();
@@ -135,6 +136,7 @@ std::string choosePlot(int size) {
  */
 int main(int argc, char* argv[]) {
   // Default options.
+  icu::UnicodeString database = "dummy1";
   bool loop = false;
   bool echo = false;
   int rate = 1000;
@@ -147,12 +149,14 @@ int main(int argc, char* argv[]) {
       echo = true;
     } else if (0 == std::strncmp(argv[i], "-rate=", 6)) {
       rate = utils::toInt(std::string(argv[i]).substr(6));
+    } else if (0 == std::strncmp(argv[i], "-database=", 10)) {
+      database = utils::toUS(std::string(argv[i]).substr(10));
     }
   }
 
   // Initalize and run annotators
   AnnotationGateway gateway = AnnotationGateway();
-  gateway.setParameter("Database", "collision4");
+  gateway.setParameter("Database", database);
   gateway.run();
 
   // Get required iterators.
