@@ -258,19 +258,24 @@ class MovementDirectionAnnotator : public Annotator {
       begin = move.getBeginPosition();
 
       // Loop through joint states related to this movement.
-      for (std::size_t i = 0; i < jointStates.size(); i++) {
-        js = jointStates[i];
-        name = move.getStringValue(mvNameFtr);
-        pos = getPosByName(js, name);
-        posStart = pos;
-        posDiff = pos - posPrev;
+      for (std::size_t i = 0; i <= jointStates.size(); i++) {
+        if (i < jointStates.size()) {
+          js = jointStates[i];
+          end = js.getEndPosition();
+          name = move.getStringValue(mvNameFtr);
+          pos = getPosByName(js, name);
+          posStart = pos;
+          posDiff = pos - posPrev;
+        } else {
+          // Force direction change to annotate the very last movement dir.
+          posDiff = (posDiff >= 0) ? 1 : -1;
+        }
 
         // Act acording to movement direction.
         switch (direction) {
           case POSITIVE:
             if (0 > posDiff) {  // Direction changed, now negative.
-              index.addFS(negMoveAnnotation(
-                name, begin, js.getEndPosition(), posStart, pos));
+              index.addFS(posMoveAnnotation(name, begin, end, posStart, pos));
               direction = NEGATIVE;
               posStart = pos;
               begin = js.getBeginPosition();
@@ -278,8 +283,7 @@ class MovementDirectionAnnotator : public Annotator {
             break;
           case NEGATIVE:
             if (0 < posDiff) {  // Direction changed, now positive.
-              index.addFS(posMoveAnnotation(
-                name, begin, js.getEndPosition(), posStart, pos));
+              index.addFS(negMoveAnnotation(name, begin, end, posStart, pos));
               direction = POSITIVE;
               posStart = pos;
               begin = js.getBeginPosition();
