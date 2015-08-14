@@ -22,26 +22,25 @@ class AnnotationGateway {
   uima::AnalysisEngine* engine;
   uima::CAS* cas;
   const uima::TypeSystem* typeSystem;
-//  uima::AnnotatorContext* annotatorContext;
-//  const uima::AnalysisEngineDescription* aeDescription;
+  uima::AnalysisEngineDescription* aeDescription;
   StdCoutLogger* stdCoutLogger;
   uima::FileLogger* fileLogger;
 
   uima::TyErrorId errorId;
   uima::ErrorInfo errorInfo;
 
+  icu::UnicodeString pipeline;
 
  public:
   AnnotationGateway(void);
   ~AnnotationGateway(void);
-  void initAE();
   void run();
   uima::Type getType(const icu::UnicodeString& typeName);
-  uima::Feature getFeature(
-    const icu::UnicodeString& typeName,
-    const icu::UnicodeString& featureName
-  );
+  uima::Feature getFeature(const icu::UnicodeString& typeName,
+                           const icu::UnicodeString& featureName);
   uima::ANIterator getANIterator(const icu::UnicodeString& typeName);
+  bool setParameter(const icu::UnicodeString& name,
+                    const icu::UnicodeString& value);
 };
 
 

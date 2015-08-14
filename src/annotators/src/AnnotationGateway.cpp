@@ -12,8 +12,25 @@
 /**
  * Constructor. Initialize Analysis engine.
  */
-AnnotationGateway::AnnotationGateway(void) {
-  initAE();
+AnnotationGateway::AnnotationGateway(void) :
+  pipeline("descriptors/pipelines/Pipeline.xml")
+{
+  // Create a resource manager instance (singleton)
+  uima::ResourceManager& resourceManager =
+    uima::ResourceManager::createInstance("RobotTrajectoryAnalyzer");
+
+  // Register terminal logger.
+  stdCoutLogger = new StdCoutLogger(false);
+  resourceManager.registerLogger(stdCoutLogger);
+
+  // Register file logger.
+  fileLogger = new uima::FileLogger("uima.log");
+  resourceManager.registerLogger(fileLogger);
+
+  // Analysis Engine Description
+  uima::XMLParser parser;
+  aeDescription = new uima::AnalysisEngineDescription();
+  parser.parseAnalysisEngineDescription(*aeDescription, pipeline);
 }
 
 
@@ -28,31 +45,17 @@ AnnotationGateway::~AnnotationGateway(void) {
   delete engine;
   delete stdCoutLogger;
   delete fileLogger;
-//  delete typeSystem;
-//  delete annotatorContext;
-//  delete aeDescription;
+  delete aeDescription;
 }
 
 
-/**
- * Initialize the analysis engine and private class variables.
- */
-void AnnotationGateway::initAE() {
-  // Create a resource manager instance (singleton)
-  uima::ResourceManager& resourceManager =
-    uima::ResourceManager::createInstance("RobotTrajectoryAnalyzer");
-
-  // Register terminal logger.
-  stdCoutLogger = new StdCoutLogger(false);
-  resourceManager.registerLogger(stdCoutLogger);
-
-  // Register file logger.
-  fileLogger = new uima::FileLogger("uima.log");
-  resourceManager.registerLogger(fileLogger);
+void AnnotationGateway::run() {
+  // Commit Analysis Engine Description.
+  aeDescription->validate();
+  aeDescription->commit();
 
   // Initialize Analysis Engine.
-  engine = uima::Framework::createAnalysisEngine(
-    true, "descriptors/pipelines/Pipeline.xml", errorInfo);
+  engine = uima::Framework::createAnalysisEngine(*aeDescription, errorInfo);
   utils::checkError(errorInfo, *engine);
 
   // Get a new CAS.
@@ -60,18 +63,13 @@ void AnnotationGateway::initAE() {
 
   // Initialize SOFA.
   // We do not use a sofa document or datastream. Instead the first Annotator
-  // in the aggregate flow populates CAS with data which is then analyzed by
-  // handled as SOFA with the annotators further down the stream annotating it.
+  // in the aggregate flow populates the CAS with data which is then analyzed
+  // the annotators further down the stream.
   icu::UnicodeString us = "";
   cas->setDocumentText(us);
 
   typeSystem = &cas->getTypeSystem();
-//  annotatorContext = &engine->getAnnotatorContext();
-//  aeDescription = &annotatorContext->getTaeSpecifier();
-}
 
-
-void AnnotationGateway::run() {
   // Process the CAS.
   errorId = engine->process(*cas);
   utils::checkError(errorId, *engine);
@@ -118,4 +116,32 @@ uima::ANIterator AnnotationGateway::getANIterator(
   const icu::UnicodeString& typeName
 ) {
   return cas->getAnnotationIndex(getType(typeName)).iterator();
+}
+
+
+/**
+ * Set an analysis engine description configuration parameter key value pair.
+ *
+ * @param name
+ * @param value
+ */
+bool AnnotationGateway::setParameter(
+  const icu::UnicodeString& name,
+  const icu::UnicodeString& value
+) {
+  uima::NameValuePair* pair = aeDescription->getNameValuePair(name);
+  if (pair != NULL) {
+    if (pair->isModifiable()) {
+      pair->setValue(value);
+    } else {
+      return UIMA_ERR_CONFIG_OBJECT_COMITTED;
+    }
+  } else {
+    uima::NameValuePair pair;
+    pair.setName(name);
+    pair.setValue(value);
+    return (UIMA_ERR_NONE == aeDescription->setNameValuePair(pair));
+  }
+
+  return UIMA_ERR_NONE;
 }

@@ -152,6 +152,7 @@ int main(int argc, char* argv[]) {
 
   // Initalize and run annotators
   AnnotationGateway gateway = AnnotationGateway();
+  gateway.setParameter("Database", "collision4");
   gateway.run();
 
   // Get required iterators.
